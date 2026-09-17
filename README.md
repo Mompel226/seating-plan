@@ -2,6 +2,21 @@
 
 Draw your room once, then drag faces into chairs. It prints on one sheet.
 
+> ## ⚠️ You need iSAMS
+>
+> This is built around exports from **iSAMS**, the school management system. **If your school does
+> not use iSAMS, this will not work** — there is nowhere for it to get your class from.
+>
+> The photographs are the part that cannot be replaced: they come out of the iSAMS **Student ID
+> Badge** report, and nothing else produces that file.
+>
+> If your school runs a different MIS it *may* still manage the names — the reader takes an
+> Excel file and looks for `Surname` and `Forename` columns, accepting the usual variants
+> (`Last Name`, `Given Name`, `Known As`, `Date of Birth`, `Form`, `Tutor Group`, `House`). That
+> route is untested against anything but iSAMS, and it will not bring the photographs with it.
+>
+> Please check this before you spend time downloading it.
+
 A seating plan is only useful if you can make one in the five minutes before a lesson and read it
 from the front of the room. This is a small Mac app that does that and nothing else. It runs on your
 own machine, keeps your classes in a folder you can see, and never sends a child's name or face
@@ -68,9 +83,12 @@ the folder yourself if you want them gone.
 
 ## Requirements
 
-macOS, and a class list. It is built from Swift for the window and Python for the local server, both
-of which macOS already has — there is nothing to install first, and no dependencies to keep
-up to date.
+- **iSAMS** — see the notice at the top. Two exports: the **Export Wizard** file for names, preferred
+  names and dates of birth, and the **Student ID Badge** report for the photographs. Both from
+  Student Manager ▸ tick the class ▸ Search ▸ select all ▸ Selected Students ▸ Exporting and Reports.
+  Choose **Excel** whenever iSAMS offers you a format.
+- **macOS.** Built from Swift for the window and Python for the local server, both of which macOS
+  already has — nothing to install first, and no dependencies to keep up to date.
 
 ## Made by
 
