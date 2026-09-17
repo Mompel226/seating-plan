@@ -1,4 +1,9 @@
 #!/usr/bin/env python3
+# Copyright (c) 2026 Dr Daniel Mompel Riera
+# Licensed under the GNU Affero General Public License v3.0.
+# Free to use and change; if you pass on a changed version, or let anyone
+# use it over a network, you must publish your source under the same licence.
+# Commercial use needs my permission: dmompelriera@nlcsjeju.kr
 """Build a birthday profile from the two school exports.
 
     import.py <main.xlsx> <StudentIDBadge.xls|.xlsx|-> <out_dir> [initials] [extra.xlsx ...]

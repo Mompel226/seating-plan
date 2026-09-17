@@ -1,3 +1,8 @@
+// Copyright (c) 2026 Dr Daniel Mompel Riera
+// Licensed under the GNU Affero General Public License v3.0.
+// Free to use and change; if you pass on a changed version, or let anyone
+// use it over a network, you must publish your source under the same licence.
+// Commercial use needs my permission: dmompelriera@nlcsjeju.kr
 // A single clean window showing one page - no tab bar, no address bar, no browser.
 //
 //   app-window-native <url> [width] [height]

@@ -1,4 +1,9 @@
 #!/bin/bash
+# Copyright (c) 2026 Dr Daniel Mompel Riera
+# Licensed under the GNU Affero General Public License v3.0.
+# Free to use and change; if you pass on a changed version, or let anyone
+# use it over a network, you must publish your source under the same licence.
+# Commercial use needs my permission: dmompelriera@nlcsjeju.kr
 # Double-click to put Seating Plan on this Mac - or to update the copy already on it.
 #
 # An update replaces the app and nothing else. Your classes, your rooms and which class

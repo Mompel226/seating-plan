@@ -104,3 +104,14 @@ the folder yourself if you want them gone.
 Dr Daniel Mompel Riera, Biology, NLCS Jeju — <dmompelriera@nlcsjeju.kr>
 
 Free for any school to use, change, and pass on.
+
+## Licence
+
+[**AGPL-3.0**](LICENSE). Use it, change it, run it — free, and you never need to ask. If you change it
+and let anyone else use it, *including over a network*, you have to publish your source under the same
+licence.
+
+**Not covered:** third-party images and media keep their own licences — see the picture credits.
+
+© 2026 Dr Daniel Mompel Riera. I hold the copyright, so I can grant other terms: if you want to use any of
+this commercially, ask me at <dmompelriera@nlcsjeju.kr>.
