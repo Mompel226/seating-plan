@@ -1,0 +1,142 @@
+#!/bin/bash
+# Open a URL as its own clean window - no tab bar, no address bar - separate from your
+# everyday browsing.
+#   app-window <url> [width] [height]
+#
+# Why this does not just call a browser any more
+# ----------------------------------------------
+# A Chromium --app window looked right, but --user-data-dir makes a *second* Chrome
+# instance, and macOS registers that as its own application: you get a second Google
+# Chrome icon in the Dock. Clicking it does not focus the app window - a Dock click is a
+# reopen Apple Event, and Chrome answers one by opening an ordinary window, so you get an
+# empty chrome://newtab. That is the extra window. No Chromium flag prevents it
+# (--no-startup-window suppresses the wanted window too), and Edge/Brave/Vivaldi are the
+# same engine with the same behaviour.
+#
+# So the window is ours: a WKWebView in a plain NSWindow, built once by swiftc from
+# main.swift in Resources and cached under Application Support. One window, one Dock icon
+# that really is this app, and a Dock click brings it to the front.
+#
+# Nothing here is required. If the Xcode command line tools are missing, or the build
+# fails, or POPUP_BROWSER names a browser, it falls back to the old browser route and
+# then to Safari, so the apps keep working on a Mac that has neither.
+#
+# One trap worth knowing: a .app whose executable is a shell script is launched by macOS
+# under Rosetta on Apple silicon, so `uname -m` inside it answers x86_64 and every child
+# it spawns inherits the Intel slice. That is what put Chrome in Rosetta and raised the
+# "will not open in a future release of macOS" notice. Ask the hardware
+# (hw.optional.arm64), not uname, and build and launch through `arch -arm64`.
+URL="$1"; W="${2:-1180}"; H="${3:-820}"
+STATE="$HOME/Library/Application Support/SeatingPlanner"
+PROF="$STATE/window"
+mkdir -p "$PROF"
+FORCE="${POPUP_BROWSER:-auto}"
+
+# The real hardware, which survives Rosetta - `uname -m` does not.
+APPLE_SILICON="$(sysctl -n hw.optional.arm64 2>/dev/null)"
+run_native(){ if [ "$APPLE_SILICON" = "1" ]; then arch -arm64 "$@"; else "$@"; fi; }
+
+SELF="${BASH_SOURCE[0]}"; while [ -L "$SELF" ]; do SELF="$(readlink "$SELF")"; done
+MACOS_DIR="$(cd "$(dirname "$SELF")" && pwd)"
+CONTENTS="$(cd "$MACOS_DIR/.." && pwd)"
+RES="$CONTENTS/Resources"
+
+plist_get(){ /usr/libexec/PlistBuddy -c "Print :$2" "$1" 2>/dev/null; }
+
+# ------------------------------------------------------------------ our own window
+SRC="$RES/main.swift"
+APP_NAME="$(plist_get "$CONTENTS/Info.plist" CFBundleName)"; : "${APP_NAME:=App Window}"
+APP_ID="$(plist_get "$CONTENTS/Info.plist" CFBundleIdentifier)"; : "${APP_ID:=uk.dmr.appwindow}"
+NATIVE_APP="$STATE/bin/$APP_NAME.app"
+NATIVE_EXE="$NATIVE_APP/Contents/MacOS/$APP_NAME"
+
+build_native(){                    # compile once, then only when main.swift changes
+  command -v swiftc >/dev/null 2>&1 || return 1
+  [ -f "$SRC" ] || return 1
+  mkdir -p "$NATIVE_APP/Contents/MacOS" "$NATIVE_APP/Contents/Resources" || return 1
+  cat > "$NATIVE_APP/Contents/Info.plist" <<PLIST
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>CFBundleName</key><string>$APP_NAME</string>
+  <key>CFBundleDisplayName</key><string>$APP_NAME</string>
+  <key>CFBundleIdentifier</key><string>$APP_ID.window</string>
+  <key>CFBundleExecutable</key><string>$APP_NAME</string>
+  <key>CFBundleIconFile</key><string>AppIcon</string>
+  <key>CFBundlePackageType</key><string>APPL</string>
+  <key>CFBundleVersion</key><string>1.0</string>
+  <key>CFBundleShortVersionString</key><string>1.0</string>
+  <key>LSMinimumSystemVersion</key><string>11.0</string>
+  <key>NSHighResolutionCapable</key><true/>
+</dict>
+</plist>
+PLIST
+  [ -f "$RES/AppIcon.icns" ] && cp -f "$RES/AppIcon.icns" "$NATIVE_APP/Contents/Resources/AppIcon.icns"
+  local tmp; tmp="$(mktemp -d "${TMPDIR:-/tmp}/appwindow.XXXXXX")" || return 1
+  # Built through arch so a Rosetta parent cannot leave us with an Intel binary.
+  if run_native swiftc -swift-version 5 -O -o "$tmp/bin" "$SRC" >"$tmp/log" 2>&1; then
+    mv -f "$tmp/bin" "$NATIVE_EXE" && chmod +x "$NATIVE_EXE" && rm -rf "$tmp" && return 0
+  fi
+  cp -f "$tmp/log" "$STATE/app-window-build.log" 2>/dev/null
+  rm -rf "$tmp"; return 1
+}
+
+try_native(){
+  [ "${APP_WINDOW_NATIVE:-1}" = "0" ] && return 1        # escape hatch: use a browser
+  [ -f "$SRC" ] || return 1
+  if [ ! -x "$NATIVE_EXE" ] || [ "$SRC" -nt "$NATIVE_EXE" ]; then
+    build_native || return 1
+  fi
+  "$NATIVE_EXE" "$URL" "$W" "$H" >/dev/null 2>&1 &
+  disown 2>/dev/null
+  return 0
+}
+
+# ------------------------------------------------------------------ browser fallback
+exe_path(){                        # the real binary inside a .app, whatever it is called
+  local n; n="$(plist_get "$1/Contents/Info.plist" CFBundleExecutable)"
+  [ -z "$n" ] && n="$(basename "$1" .app)"
+  printf '%s/Contents/MacOS/%s' "$1" "$n"
+}
+has_arm64(){                       # does this binary carry an Apple-silicon slice?
+  case " $(lipo -archs "$1" 2>/dev/null) " in *" arm64 "*|*" arm64e "*) return 0 ;; esac
+  return 1
+}
+launch_browser(){                  # $@ = the browser and its arguments
+  if [ "$APPLE_SILICON" = "1" ] && has_arm64 "$1"; then
+    arch -arm64 "$@" >/dev/null 2>&1 &
+  else                             # Intel Mac, or a browser with no Apple-silicon build
+    "$@" >/dev/null 2>&1 &
+  fi
+  disown 2>/dev/null
+}
+try_app() {                        # $1 = browser name
+  local d app exe
+  for d in /Applications "$HOME/Applications"; do
+    app="$d/$1.app"; [ -d "$app" ] || continue
+    exe="$(exe_path "$app")"; [ -x "$exe" ] || continue
+    launch_browser "$exe" --app="$URL" --user-data-dir="$PROF" \
+           --no-first-run --no-default-browser-check --window-size="$W,$H"
+    return 0
+  done
+  return 1
+}
+
+# ------------------------------------------------------------------ pick one
+if [ "$FORCE" != "auto" ] && [ "$FORCE" != "Safari" ]; then
+  try_app "$FORCE" && exit 0       # an explicitly named browser wins
+fi
+if [ "$FORCE" = "auto" ]; then
+  try_native && exit 0             # our own window: one window, one Dock icon
+fi
+if [ "$FORCE" != "Safari" ]; then
+  for b in "Google Chrome" "Microsoft Edge" "Brave Browser" "Vivaldi" "Chromium"; do
+    try_app "$b" && exit 0
+  done
+fi
+# no Chromium-family browser installed (or Safari was asked for): a normal window
+for d in /Applications /System/Applications "/System/Cryptexes/App/System/Applications"; do
+  [ -d "$d/Safari.app" ] && { open -a Safari "$URL" && exit 0; }
+done
+open "$URL"

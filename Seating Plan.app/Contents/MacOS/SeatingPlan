@@ -1,0 +1,41 @@
+#!/bin/bash
+# Opens the seating planner in its own clean window, with the local helper behind it.
+SELF="${BASH_SOURCE[0]}"; while [ -L "$SELF" ]; do SELF="$(readlink "$SELF")"; done
+HERE="$(cd "$(dirname "$SELF")/../../.." && pwd)"
+MAC="$HERE/Seating Plan.app/Contents/MacOS"
+RES="$HERE/Seating Plan.app/Contents/Resources"
+STATE="$HOME/Library/Application Support/SeatingPlanner"
+URLFILE="$STATE/server.url"; ERRFILE="$STATE/server.err"
+mkdir -p "$STATE"
+alive(){ [ -n "$1" ] && curl -fsS -m 3 -o /dev/null "$1" 2>/dev/null; }
+
+if [ -f "$URLFILE" ]; then
+  URL="$(head -n1 "$URLFILE")"
+  alive "$URL" && exec "$MAC/app-window" "$URL" 1440 940
+  rm -f "$URLFILE"
+fi
+
+PY=""
+for c in /usr/bin/python3 /usr/local/bin/python3 /opt/homebrew/bin/python3; do
+  [ -x "$c" ] && "$c" -c 'import http.server' >/dev/null 2>&1 && { PY="$c"; break; }
+done
+if [ -z "$PY" ] && command -v python3 >/dev/null 2>&1; then
+  python3 -c 'import http.server' >/dev/null 2>&1 && PY="python3"
+fi
+if [ -z "$PY" ]; then
+  A="$(osascript -e 'button returned of (display dialog "Reading Excel files needs Python, which macOS installs as part of its command line tools. This is a one-time, official Apple download.\n\nInstall it now, then open this app again." buttons {"Not now","Install"} default button "Install" with title "Seating Plan")' 2>/dev/null)"
+  [ "$A" = "Install" ] && xcode-select --install >/dev/null 2>&1
+  exit 1
+fi
+
+: > "$ERRFILE"; rm -f "$URLFILE"
+"$PY" "$RES/serve.py" "$HERE" --daemon "$URLFILE" "$ERRFILE"
+URL=""
+for _ in $(seq 1 50); do [ -s "$URLFILE" ] && URL="$(head -n1 "$URLFILE")" && break; sleep 0.1; done
+for _ in $(seq 1 20); do alive "$URL" && break; sleep 0.15; [ -s "$URLFILE" ] && URL="$(head -n1 "$URLFILE")"; done
+
+if [ -z "$URL" ] || ! alive "$URL"; then
+  osascript -e 'display alert "Seating Plan" message "The helper would not start, so the planner cannot open. There may be a reason in ~/Library/Application Support/SeatingPlanner/server.err"' >/dev/null 2>&1
+  exit 1
+fi
+exec "$MAC/app-window" "$URL" 1440 940

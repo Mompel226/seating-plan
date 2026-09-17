@@ -1,0 +1,3013 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Seating Plan</title>
+<script>/*__LIVE__*/ window.TOKEN = window.TOKEN || '';</script>
+<style>
+:root{
+  --surface:#fbfbfa; --card:#fff; --line:#e5e2de; --line-soft:#f0eeeb;
+  --ink:#0b0b0b; --ink-2:#4f4e4b; --ink-3:#8a8781;
+  --accent:#1f6f6b; --accent-soft:#eaf5f4; --accent-line:#c3e2df;
+  --wood:#efe6d8; --wood-line:#d9c9ae;
+  --warn:#c0392b; --warn-soft:#fdecea; --warn-line:#f3c2bc;
+  --seatw:92px; --seath:132px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{background:var(--surface);color:var(--ink);overflow:hidden;display:flex;flex-direction:column;
+  font:15px/1.5 -apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif;
+  -webkit-font-smoothing:antialiased}
+button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
+input,select{font:inherit}
+
+header{flex:none;background:linear-gradient(112deg,#123b46,#1f6f6b 46%,#3f9e7e 78%,#8fc45f);
+  color:#fff;padding:13px 22px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+h1{font-size:19px;font-weight:800;letter-spacing:-.02em}
+.sub{opacity:.82;font-size:12.5px}
+.spacer{flex:1}
+.hbtn{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.3);color:#fff;
+  border-radius:999px;padding:7px 14px;font-size:13px;font-weight:700}
+.hbtn:hover{background:rgba(255,255,255,.28)}
+/* Who made this, and where to send a suggestion. Quiet enough to ignore while you work,
+   legible enough to act on when you want to. Goes with the header when printing. */
+.credit{display:flex;flex-direction:column;align-items:flex-end;gap:1px;margin-right:4px;
+  font-size:11px;line-height:1.3;color:rgba(255,255,255,.78);transition:color .15s}
+.credit:hover{color:rgba(255,255,255,.96)}
+.credit b{font-weight:700}
+.credit a{color:inherit;text-decoration:none;border-bottom:1px solid rgba(255,255,255,.26)}
+.credit a:hover{border-bottom-color:rgba(255,255,255,.8)}
+
+.bar{flex:none;display:flex;align-items:center;gap:7px;flex-wrap:wrap;padding:10px 22px;
+  border-bottom:1px solid var(--line);background:var(--card)}
+.btn{border:1px solid var(--line);border-radius:9px;padding:7px 12px;font-size:13px;
+  font-weight:600;color:var(--ink-2);background:var(--card);white-space:nowrap}
+.btn:hover:not([disabled]){border-color:var(--ink-3)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+/* For the one action in the app that removes a real person from a real class list. */
+.btn.danger{color:#8e2b1f;border-color:var(--warn-line);background:var(--warn-soft);font-weight:700}
+.btn.danger:hover:not([disabled]){border-color:#c0705f}
+.btn[disabled]{opacity:.38;cursor:not-allowed}
+.btn[aria-pressed=true]{background:var(--accent-soft);border-color:var(--accent-line);color:#12403c}
+.sep{width:1px;height:22px;background:var(--line);margin:0 4px}
+.cap{font-size:13px;color:var(--ink-3);white-space:nowrap}
+.cap b{color:var(--ink)}
+.cap.bad b{color:var(--warn)}
+
+.alertbar{flex:none;display:flex;align-items:center;gap:10px;background:var(--warn-soft);
+  border-bottom:1px solid var(--warn-line);color:#8e2b1f;padding:9px 22px;font-size:13px;line-height:1.45}
+.alertbar[hidden]{display:none}
+.alertbar b{font-weight:800}
+.alertbar .btn{background:#fff;border-color:var(--warn-line);color:#8e2b1f;margin-left:auto}
+
+.wrap{flex:1;min-height:0;display:flex}
+.roomwrap{flex:1;min-width:0;overflow:auto;padding:24px;position:relative;display:flex}
+/* margin:auto centres it both ways and still lets you scroll to the edges when zoomed in */
+.roomscale{margin:auto;position:relative;flex:none}
+.room{position:absolute;left:0;top:0;background:
+  linear-gradient(0deg,rgba(0,0,0,.022) 1px,transparent 1px) 0 0/100% 40px,
+  linear-gradient(90deg,rgba(0,0,0,.022) 1px,transparent 1px) 0 0/40px 100%;
+  border:1px solid var(--line);border-radius:16px;background-color:#fff}
+.room.flip .up{transform:rotate(180deg)}
+
+.table{position:absolute;background:var(--wood);border:2px solid var(--wood-line);
+  border-radius:10px;display:flex;align-items:center;justify-content:center;
+  font-size:12px;font-weight:700;color:#8a7550;letter-spacing:.06em;text-transform:uppercase}
+.marker{position:absolute;border-radius:9px;display:flex;align-items:center;justify-content:center;
+  font-size:12px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;
+  text-align:center;padding:2px 6px;overflow:hidden}
+.marker .up,.table .up{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.marker.tv{background:#26262b;color:#fff;border:3px solid #45454d}
+.marker.board{background:#f4f7f2;border:3px solid #b9c7ad;color:#5c6b52}
+.marker.door{background:#fff;border:2px dashed var(--ink-3);color:var(--ink-3)}
+.marker.desk{background:#e7eef7;border:2px solid #b8cbe0;color:#4a688a}
+.marker.note{background:#fff9e2;border:1px solid #ecdca4;color:#8a7430;text-transform:none;
+  letter-spacing:0;font-weight:600;font-size:12.5px}
+.editing .table,.editing .marker{cursor:grab}
+.editing .table.sel,.editing .marker.sel{outline:3px solid var(--accent);outline-offset:2px}
+.table.bump,.marker.bump{outline:3px solid #e0a33a;outline-offset:2px}
+
+.seat{position:absolute;width:var(--seatw);height:var(--seath);border-radius:11px;
+  border:1.5px dashed var(--line);background:#fcfcfc;cursor:pointer;overflow:hidden;
+  transition:border-color .1s,background .1s,box-shadow .1s}
+/* Pinned to the card's edges rather than sized as a percentage of it. A percentage
+   height has to be resolved against the parent, and the printer's layout does not always
+   resolve it the way the screen does - on a printed sheet this box came out pushed down
+   inside its card, far enough that the surname fell out of the bottom and was clipped
+   away. Pinned, there is nothing left to resolve and nothing that can move it. */
+.seat .up{position:absolute;inset:0;padding:5px 4px;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:2px}
+.seat:hover{border-color:var(--accent)}
+.seat.taken{border-style:solid;border-color:var(--line);background:var(--card);
+  box-shadow:0 1px 3px rgba(0,0,0,.07)}
+.seat.sel{border-color:var(--accent);background:var(--accent-soft);box-shadow:0 0 0 3px var(--accent-line)}
+.seat.clash{border-color:#d1503f;box-shadow:0 0 0 3px #f3b7ae}
+.seat.pinned::after{content:"";position:absolute;top:4px;right:5px;width:7px;height:7px;
+  border-radius:50%;background:var(--accent);box-shadow:0 0 0 2px #fff}
+.seat img{width:44px;height:54px;object-fit:cover;border-radius:6px;background:#eee;flex:none}
+.seat .nm{font-size:12px;font-weight:700;line-height:1.2;text-align:center;
+  max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.seat .sub2{font-size:10px;color:var(--ink-3);line-height:1.15;max-width:100%;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.seat .alt{font-size:9px;color:var(--ink-3);line-height:1.15;max-width:100%;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-style:italic}
+.room.nophoto .seat .alt{font-size:10.5px}
+.seat .empty{font-size:11px;color:#c9c6c1;font-weight:600}
+.tags{display:flex;gap:2px;justify-content:center;flex-wrap:wrap;width:100%;
+  max-height:32px;overflow:hidden;margin-top:1px}
+.tg{font-size:8.5px;font-weight:800;letter-spacing:.01em;color:#fff;border-radius:4px;
+  padding:1px 4px;line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.tg.more{background:#9c9891;color:#fff}
+/* On a card: keyed to the room it is in, so the screen and a sheet cannot reach each
+   other. On the tray and the drag ghost: keyed to the document, which is where they live
+   and where nothing is ever printed from. */
+.room.nophoto .seat img{display:none}
+.nophoto .chip2 img,.nophoto .ghost img{display:none}
+.room.nophoto .seat .nm{font-size:14px;white-space:normal;line-height:1.25}
+.room.nosur .seat .sub2{display:none}
+.nosur .chip2 span.sn{display:none}
+
+/* Reading mode. Every size here comes from the four numbers the grid works out for the
+   space it is being drawn into, so the screen and a sheet of paper get the same design
+   at whatever size each of them has room for. Nothing here is inside @media print, for
+   the same reason as the sheet rules further down: the sheets are measured before they
+   are sent, and a rule that only appeared on paper would make them a different size
+   there from the size they were fitted to. */
+.room.big .table,.room.big .marker{display:none}
+/* What is left of a table: enough to see which chairs share one, and where the room's
+   gangways are, without giving it back the depth this mode exists to reclaim. */
+.bigtable{position:absolute;background:var(--wood);border:1px solid var(--wood-line);
+  border-radius:5px;opacity:.75}
+.mono .bigtable{background:#fff!important;border-color:#b4b1ac!important}
+.room.big .seat{width:var(--bigw);height:var(--bigh);border-radius:14px;border-width:2px}
+.room.big .seat .up{flex-direction:row;align-items:center;justify-content:center;
+  gap:8px;padding:6px var(--bigpad)}
+.room.big .seat img{width:var(--bigpw);height:var(--bigph);border-radius:8px}
+.room.big .seat .txt2{flex:1;min-width:0;width:100%;display:flex;flex-direction:column;
+  align-items:center;justify-content:center}
+.room.big .seat .nm{width:100%;font-size:var(--bignm);line-height:1.08;letter-spacing:-.015em;
+  white-space:nowrap}
+.room.big .seat .sub2{width:100%;text-align:center;color:var(--ink-2);font-weight:600;
+  font-size:var(--bigsn);line-height:1.14}
+.room.big .seat .alt{width:100%;text-align:center;font-style:normal;
+  font-size:calc(var(--bigsn) * .82);line-height:1.18}
+.room.big .seat .empty{font-size:var(--bigsn)}
+.room.big .tags{max-height:none;margin-top:3px}
+.room.big .tg{font-size:var(--bigtg);padding:1px 5px;border-radius:5px;line-height:1.35}
+.room.big .newb{font-size:var(--bigtg);padding:0 4px;top:5px;left:6px;border-radius:4px}
+/* No photograph, so the name has the whole card instead of two thirds of it. */
+.room.big.nophoto .seat .up{flex-direction:column;gap:1px}
+/* Which way the room faces, since the board and the door are not drawn here. */
+.bigfront{position:absolute;left:0;top:7px;width:100%;text-align:center;
+  font-size:15px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--ink-3);pointer-events:none}
+.bigfront.bottom{top:auto;bottom:7px}
+/* The student's view turns the whole room over, and every piece of text in it is turned
+   back the right way up by the rule above - but that rule reaches text inside a card or a
+   piece of furniture, and this strip is neither, so it was left standing on its head. */
+.room.flip .bigfront{transform:rotate(180deg)}
+
+.ghost{position:fixed;z-index:99;pointer-events:none;width:var(--seatw);height:var(--seath);
+  border-radius:11px;background:#fff;border:1.5px solid var(--accent);
+  box-shadow:0 12px 28px rgba(0,0,0,.24);display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:2px;opacity:.96;transform:rotate(-3deg);padding:5px 4px}
+.ghost img{width:44px;height:54px;object-fit:cover;border-radius:6px}
+.ghost .nm{font-size:12px;font-weight:700}
+.ghost .sub2{font-size:10px;color:var(--ink-3)}
+.seat.drop{border-color:var(--accent)!important;background:var(--accent-soft)!important;
+  box-shadow:0 0 0 3px var(--accent-line)}
+body.dragging{cursor:grabbing}
+body.dragging .seat,body.dragging .chip2{cursor:grabbing}
+aside.drop2{background:var(--accent-soft)}
+
+aside{flex:none;width:262px;border-left:1px solid var(--line);background:var(--card);
+  display:flex;flex-direction:column;min-height:0}
+@media (max-width:1200px){ aside{width:232px} }
+
+/* Everything the school knows about the student you clicked. It sits on the left so the
+   right-hand side can stay what it is - the tray, the labels and the note. */
+aside.info{border-left:0;border-right:1px solid var(--line);width:250px;overflow-y:auto;display:block}
+aside.info[hidden]{display:none}
+@media (max-width:1200px){ aside.info{width:220px} }
+.info .who{display:flex;gap:11px;align-items:flex-start;padding:14px 15px 12px}
+.info .who img{width:56px;height:70px;object-fit:cover;border-radius:7px;background:#eee;flex:none}
+.info .who b{font-size:15px;font-weight:800;display:block;line-height:1.25}
+.info .who span{font-size:11.5px;color:var(--ink-3);display:block;margin-top:2px;line-height:1.4}
+.info .newRow{margin:0 15px 12px;background:#f3ebfb;border:1px solid #d9c2ef;border-radius:9px;
+  padding:8px 11px;font-size:12px;line-height:1.45;color:#4a2a68}
+.info .newRow b{display:block;font-size:11px;font-weight:800;letter-spacing:.07em;
+  text-transform:uppercase;color:#7b3fb5;margin-bottom:2px}
+.info dl{margin:0;padding:0 15px 16px}
+.info dt{font-size:10.5px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;
+  color:var(--ink-3);margin-top:11px}
+.info dd{margin:2px 0 0;font-size:13.5px}
+.info .none{padding:16px 15px;font-size:12.5px;color:var(--ink-3);line-height:1.55}
+
+/* The badge itself: visible on the card while you seat, not only when you click. */
+.newb{position:absolute;top:3px;left:4px;z-index:2;font-size:8px;font-weight:800;
+  letter-spacing:.06em;background:#7b3fb5;color:#fff;border-radius:4px;padding:1px 4px;
+  line-height:1.5;pointer-events:none}
+/* The chip needs a corner for the badge to sit in. The ghost does not: it is already
+   position:fixed, which is a containing block in its own right - and naming it here
+   quietly overrode that, dropping the ghost into the page as a flex item of <body>,
+   which squeezed the room and clipped the back of it out of sight. */
+.chip2{position:relative}
+.chip2 .newb{top:2px;left:2px;font-size:7.5px;padding:0 3px}
+aside h2{flex:none;font-size:11px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--ink-3);padding:14px 16px 8px}
+.tray{flex:0 1 auto;min-height:0;overflow-y:auto;padding:0 12px 12px;display:flex;flex-direction:column;gap:6px}
+.grow{flex:1 1 0;min-height:0}
+.chip2{display:flex;align-items:center;gap:9px;border:1px solid var(--line-soft);border-radius:10px;
+  padding:5px 9px 5px 5px;cursor:pointer;background:var(--card)}
+.chip2:hover{border-color:var(--accent)}
+.chip2.sel{border-color:var(--accent);background:var(--accent-soft);box-shadow:0 0 0 2px var(--accent-line)}
+.chip2 img{width:30px;height:37px;object-fit:cover;border-radius:5px;background:#eee;flex:none}
+.chip2 .txt{min-width:0;flex:1}
+.chip2 b{font-size:13px;font-weight:700;display:block;line-height:1.2;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.chip2 span{font-size:11px;color:var(--ink-3);display:block;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.chip2 .tags{justify-content:flex-start;max-height:16px;margin-top:2px}
+.trayNote{flex:none;padding:2px 16px 12px;font-size:12px;color:var(--ink-3);line-height:1.5}
+
+.panel{flex:none;border-top:1px solid var(--line);padding:13px 16px;max-height:56%;overflow-y:auto}
+/* in edit mode the panel is the whole sidebar, so let it take the room and scroll */
+aside.editmode > h2,aside.editmode > .grow,aside.editmode > .trayNote{display:none}
+aside.editmode .panel{flex:1 1 auto;min-height:0;max-height:none;border-top:0;padding-top:16px}
+.panel h3{font-size:11px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--ink-3);margin-bottom:9px}
+.panel h3.mt{margin-top:15px}
+.grid4{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.grid4 label{font-size:11px;color:var(--ink-3);font-weight:700;display:block;margin-bottom:3px}
+.grid4 input{width:100%;border:1px solid var(--line);border-radius:8px;padding:6px 8px;font-size:13px}
+.panel .row{display:flex;gap:6px;margin-top:9px;flex-wrap:wrap}
+.panel .row .btn{flex:1 1 auto;min-width:72px;text-align:center}
+.panel select,.panel textarea{width:100%;border:1px solid var(--line);border-radius:8px;
+  padding:7px 9px;font-size:13px;font-family:inherit;background:var(--card)}
+.panel textarea{resize:vertical;min-height:54px;line-height:1.45}
+.who3{display:flex;align-items:center;gap:10px;margin-bottom:11px}
+.who3 img{width:42px;height:52px;object-fit:cover;border-radius:7px;background:#eee;flex:none}
+.who3 .txt{min-width:0}
+.who3 b{font-size:15px;display:block;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.who3 span{font-size:12px;color:var(--ink-3);display:block;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tagBtns{display:flex;gap:5px;flex-wrap:wrap}
+.tagBtn{border:1.5px solid var(--line);border-radius:999px;padding:4px 10px;font-size:12px;
+  font-weight:700;color:var(--ink-2);background:var(--card);max-width:100%;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tagBtn.on{color:#fff;border-color:transparent}
+.away{display:flex;align-items:center;gap:6px;font-size:12.5px;background:var(--warn-soft);
+  border:1px solid var(--warn-line);border-radius:8px;padding:5px 6px 5px 9px;margin-bottom:5px}
+.away span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#8e2b1f}
+.away button{font-size:13px;color:#8e2b1f;padding:0 4px;border-radius:5px;flex:none}
+.away button:hover{background:#f6d5d0}
+.toggles{display:flex;flex-direction:column;gap:10px}
+.tgl{display:flex;align-items:center;gap:9px;font-size:13px;color:var(--ink-2);cursor:pointer}
+.tgl input{width:15px;height:15px;accent-color:var(--accent);flex:none;margin:0}
+.legend{display:flex;gap:5px;flex-wrap:wrap;margin-top:4px}
+.legend .lg{display:flex;align-items:center;gap:5px;font-size:11.5px;color:var(--ink-2);
+  border:1px solid var(--line-soft);border-radius:999px;padding:2px 9px 2px 4px;max-width:100%}
+.legend .dot{width:10px;height:10px;border-radius:3px;flex:none}
+.legend .lg b{font-weight:700}
+.legend .lg i{font-style:normal;color:var(--ink-3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+.modal{position:fixed;inset:0;z-index:60;display:none;align-items:center;justify-content:center;padding:24px;
+  background:rgba(15,25,24,.36)}
+.modal.on{display:flex}
+.sheet{background:var(--card);border-radius:18px;width:600px;max-width:100%;max-height:88vh;
+  overflow-y:auto;box-shadow:0 30px 80px rgba(10,30,28,.3);position:relative}
+.sheet .hd{padding:19px 23px 12px;position:sticky;top:0;background:var(--card);
+  border-bottom:1px solid var(--line-soft);z-index:2}
+.sheet .hd h2{font-size:18px;font-weight:800}
+.sheet .hd p{font-size:13px;color:var(--ink-3);margin-top:3px;padding-right:34px}
+.sheet .bd{padding:16px 23px 22px}
+/* Section headings inside a dialog. These had no style of their own at all - the rule
+   for them was written against the side panel and never matched here - so they fell back
+   to the browser's own h3 and sat hard up against the row above. That is what made the
+   print dialog read as one long undifferentiated list of tick boxes. They now match the
+   small capitals that the fields beside them were already using. */
+.sheet .bd h3{font-size:11.5px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;
+  color:var(--ink-3);margin:0 0 9px}
+.sheet .bd h3.mt{margin-top:24px}
+/* A note explaining the switch above it belongs to that switch, not to the next group. */
+.sheet .bd .toggles + .note{margin-top:8px}
+.x{position:absolute;top:15px;right:17px;width:30px;height:30px;border-radius:8px;
+  color:var(--ink-3);font-size:17px;z-index:3;background:var(--card)}
+.x:hover{background:var(--line-soft)}
+.crow{display:flex;align-items:center;gap:12px;border:1px solid var(--line-soft);border-radius:11px;
+  padding:11px 13px;margin-bottom:8px;cursor:pointer}
+.crow:hover{border-color:var(--accent-line);background:var(--accent-soft)}
+.crow.cur{border-color:var(--accent);background:var(--accent-soft)}
+/* The text block takes the slack, so however many buttons a row carries they stay on
+   one line and line up with every other row. Do not give the buttons margin-left:auto:
+   with more than one, each grabs the free space and the row breaks up. */
+.crow .txt{min-width:0;flex:1}
+.crow b{font-size:14.5px;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.crow span{font-size:12.5px;color:var(--ink-3);display:block;overflow:hidden;
+  text-overflow:ellipsis;white-space:nowrap}
+.crow .now{flex:none;font-size:10.5px;font-weight:800;letter-spacing:.06em;white-space:nowrap;
+  text-transform:uppercase;background:var(--accent);color:#fff;border-radius:999px;padding:3px 9px}
+.crow .del{flex:none;font-size:12px;font-weight:700;color:var(--ink-3);white-space:nowrap;
+  padding:4px 8px;border-radius:7px}
+.crow .del:hover{background:#fdeceb;color:var(--warn)}
+.crow input.pname{font-size:14.5px;font-weight:700;border:1px solid transparent;border-radius:7px;
+  padding:3px 6px;margin:-3px 0 1px -6px;width:100%;max-width:210px;background:transparent}
+.crow input.pname:hover{border-color:var(--line)}
+.crow input.pname:focus{border-color:var(--accent);background:#fff;outline:none}
+.pbtn{display:block;width:100%;text-align:center;background:var(--accent);color:#fff;border-radius:10px;
+  padding:12px;font-size:14.5px;font-weight:700;margin-top:6px}
+.pbtn.ghost2{background:transparent;color:var(--ink-2);border:1px solid var(--line)}
+.pbtn[disabled]{opacity:.45;cursor:not-allowed}
+.steps{background:#f5f4f1;border-radius:11px;padding:13px 15px;margin-bottom:13px;font-size:13px;
+  line-height:1.7;color:var(--ink-2)}
+.steps > b{display:block;font-size:11.5px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;
+  color:var(--ink-3);margin-bottom:5px}
+.steps code{background:#fff;border:1px solid var(--line);border-radius:6px;padding:1px 6px;font:inherit;font-size:12.5px}
+.sheet .drop{border:2px dashed var(--line);border-radius:13px;padding:16px;text-align:center;cursor:pointer;margin-bottom:9px}
+.sheet .drop:hover,.sheet .drop.over{border-color:var(--accent);background:var(--accent-soft)}
+.sheet .drop b{display:block;font-size:14px;font-weight:700}
+.sheet .drop span{font-size:12.5px;color:var(--ink-3)}
+.sheet .drop.done{border-style:solid;border-color:#2e9e6b;background:#eefaf3}
+.cover{background:#f5f4f1;border-radius:11px;padding:11px 14px;margin:2px 0 4px}
+.cover .ck{display:flex;gap:8px;font-size:12.5px;line-height:1.55;color:var(--ink-3);padding:1px 0}
+.cover .ck span{font-weight:800;width:11px;flex:none;text-align:center}
+.cover .ck.on{color:var(--ink-2)}
+.cover .ck.on span{color:#2e9e6b}
+.cover .ck b{color:var(--ink-2);font-weight:700}
+.cover .hint{font-size:12.5px;line-height:1.55;color:var(--ink-3)}
+.cover .hint b{color:var(--ink-2);font-weight:700}
+.fld{margin:13px 0}
+.fld label{display:block;font-size:11.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;
+  color:var(--ink-3);margin-bottom:5px}
+.fld input,.fld select{width:100%;border:1px solid var(--line);border-radius:9px;padding:10px 12px;font-size:14px}
+.note{font-size:12.5px;color:var(--ink-3);line-height:1.6;margin-top:10px}
+.log{font:12px/1.55 ui-monospace,Menlo,monospace;background:#f5f4f1;border-radius:9px;padding:11px 13px;
+  margin-top:11px;white-space:pre-wrap;max-height:180px;overflow:auto}
+.empty2{text-align:center;color:var(--ink-3);padding:70px 20px;flex:1}
+.empty2 h3{font-size:19px;color:var(--ink);margin-bottom:6px}
+.empty2 p{max-width:420px;margin:0 auto;line-height:1.6}
+
+/* the label editor */
+.trow{display:grid;grid-template-columns:34px 92px 1fr 30px;gap:9px;align-items:center;margin-bottom:9px}
+.trow input[type=color]{width:34px;height:34px;padding:2px;border:1px solid var(--line);
+  border-radius:8px;background:var(--card);cursor:pointer}
+.trow input[type=text]{width:100%;border:1px solid var(--line);border-radius:8px;padding:8px 9px;font-size:13.5px}
+.trow .del2{color:var(--ink-3);font-size:15px;border-radius:7px;height:30px}
+.trow .del2:hover{background:#fdeceb;color:var(--warn)}
+.thead{display:grid;grid-template-columns:34px 92px 1fr 30px;gap:9px;font-size:10.5px;font-weight:800;
+  letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3);margin-bottom:6px}
+
+/* printing */
+/* The printout is a document of its own, built off-screen and left there. The plan you
+   are working on is never touched to make a sheet, so what the printer is handed cannot
+   drift from what the preview showed. Off-screen rather than hidden, because a heading
+   with no height cannot be measured, and the sheets are laid out to the millimetre. */
+#psheets{position:absolute;left:-30000px;top:0;width:0;height:0;overflow:hidden}
+/* one sheet: the paper less the margins the print job is given, in real millimetres */
+.psheet{background:#fff;color:#0b0b0b}
+.psheet + .psheet{page-break-before:always;break-before:page}
+/* The plan hangs from the top of its box, never centred in it. Centred, anything the box
+   turns out to be too short for is split evenly above and below - and above is off the top
+   of the paper, where a row of students simply stops existing. Hung from the top, the only
+   direction anything can ever go is down, into the space under the plan, where it is still
+   on the page and can be seen. */
+.proom{position:relative;overflow:visible;display:flex;align-items:flex-start;
+  justify-content:center}
+.proom .roomscale{margin:0 auto;position:relative;flex:none}
+/* the class list, sharing the sheet with the plan above it */
+/* Nothing on a sheet hides what overflows it any more: a box a millimetre too short
+   must show that, not cut a student in half. */
+.pbelow{padding-top:15px;overflow:visible}
+.pbelow .pbelowin{transform-origin:top left}
+.pbelow h3{font-size:12.5px;font-weight:800;margin-bottom:4px}
+.plistcols{display:flex;gap:22.7px;align-items:flex-start}
+.plistcols > table{flex:1;min-width:0}
+/* The class name is the first thing you look for on a sheet that is one of seven in a
+   pile, so it is set to be read across a desk rather than to sit politely in a corner. */
+.phead h2{font-size:30px;font-weight:800;letter-spacing:-.02em;line-height:1.15}
+.phead .pmeta{font-size:12.5px;color:#555;margin-top:2px}
+.phead .pnote{font-size:12.5px;color:#333;margin-top:5px;line-height:1.5}
+.plegend{display:flex;gap:8px;flex-wrap:wrap;margin-top:7px}
+.plegend .lg{display:flex;align-items:center;gap:5px;font-size:11px;color:#333}
+.plegend .dot{width:9px;height:9px;border-radius:3px}
+table.plist{width:100%;border-collapse:collapse;font-size:11.5px}
+table.plist th{text-align:left;font-size:10px;letter-spacing:.06em;text-transform:uppercase;
+  color:#666;border-bottom:1px solid #bbb;padding:5px 6px}
+table.plist td{border-bottom:1px solid #e3e3e3;padding:4px 6px;vertical-align:top}
+table.plist td.c{width:34px;color:#666}
+table.plist tr{page-break-inside:avoid}
+table.plist .tg{display:inline-block;font-size:8.5px;padding:1px 4px;border-radius:4px;
+  color:#fff;font-weight:800;vertical-align:1px}
+/* tighter, because it is sharing the sheet with the plan */
+/* The name is what you are looking for in here, so it is the one thing set large. */
+table.plist td.who{font-size:13.5px;line-height:1.3;white-space:nowrap}
+table.plist td.who b{font-weight:800}
+.noseat{font-size:9px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;
+  color:#a8362a;white-space:nowrap}
+table.plist.tight{font-size:10.5px}
+table.plist.tight td.who{font-size:12.5px}
+table.plist.tight th{padding:3px 5px}
+table.plist.tight td{padding:2.5px 5px}
+
+/* How a sheet looks. None of this belongs in @media print: the sheets are measured
+   off-screen before they are sent, and a rule that only appears on paper would make them
+   a different size there from the size they were fitted to - which is a sheet and a half
+   instead of a sheet. Every one of these is scoped to a printed sheet, so the plan on
+   screen is untouched by them. */
+.psheet .phead{margin:0 0 11.3px}
+.psheet .room{border:0;background-image:none;background-color:#fff}
+.psheet .seat{box-shadow:none}
+.psheet .seat.taken{border-color:#c8c5c1}
+.psheet .seat .empty{visibility:hidden}  /* a free chair reads as a free chair without the word */
+.psheet .seat.pinned::after{background:#8a8781}
+/* black and white: outlined chips you can still tell apart, and paler furniture,
+   so a hand-annotated copy stays readable off a mono laser printer */
+.mono .tg{background:#fff!important;color:#000!important;border:1px solid #555;
+  padding:0 3px;font-weight:700}
+.mono .plegend .dot{background:#fff!important;border:1px solid #555}
+.mono .table{background:#fff!important;border-color:#999!important;color:#666!important}
+.mono .marker{background:#fff!important;border-color:#999!important;color:#555!important}
+.mono .marker.tv{background:#e8e8e8!important}
+.mono img{filter:grayscale(1) contrast(1.05)}
+
+@media print{
+  /* the whole of the screen goes; only the sheets built for the paper are printed */
+  header,.bar,aside,.modal,.alertbar,.wrap{display:none!important}
+  body{overflow:visible;background:#fff;display:block;height:auto}
+  #psheets{position:static;left:auto;top:auto;width:auto;height:auto;overflow:visible}
+  /* colour only - nothing here may change the size of anything */
+  .tg,.plegend .dot,.table,.marker{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .seat img,.psheet{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+</style></head>
+<body>
+
+<header>
+  <div><h1>Seating Plan</h1><div class="sub" id="sub">—</div></div>
+  <div class="spacer"></div>
+  <div class="credit">
+    <span>Made by <b>Dr.&nbsp;Daniel&nbsp;Mompel</b></span>
+    <a href="mailto:dmompelriera@nlcsjeju.kr?subject=Seating%20Plan%20%E2%80%94%20suggestion%20or%20problem"
+       title="Suggestions for improvements, or something not working — email me">dmompelriera@nlcsjeju.kr</a>
+  </div>
+  <button class="hbtn" id="planBtn">Rooms</button>
+  <button class="hbtn" id="classBtn">Classes</button>
+</header>
+
+<div class="bar" id="bar">
+  <button class="btn" id="shuffle">Shuffle</button>
+  <button class="btn" id="alpha">A–Z</button>
+  <button class="btn" id="alt">Alternate</button>
+  <button class="btn" id="clear">Empty all</button>
+  <span class="sep"></span>
+  <button class="btn" id="undo" disabled>Undo</button>
+  <span class="sep"></span>
+  <button class="btn" id="labels">Labels…</button>
+  <button class="btn" id="flip" aria-pressed="false">Student's view</button>
+  <button class="btn" id="big" aria-pressed="false">Big names</button>
+  <button class="btn" id="print">Print…</button>
+  <span class="sep"></span>
+  <button class="btn" id="zoomOut">–</button>
+  <span class="cap" id="zoomLbl" style="min-width:44px;text-align:center">100%</span>
+  <button class="btn" id="zoomIn">+</button>
+  <button class="btn" id="zoomFit" aria-pressed="true">Fit</button>
+  <div class="spacer"></div>
+  <span class="cap" id="cap"></span>
+  <button class="btn" id="addStudent">Add a student…</button>
+  <button class="btn primary" id="editRoom">Edit the room</button>
+</div>
+
+<div class="alertbar" id="alert" hidden></div>
+
+<div class="wrap" id="wrap">
+  <aside class="info" id="info" hidden></aside>
+  <div class="roomwrap" id="roomwrap"><div class="roomscale" id="roomscale"><div class="room" id="room"></div></div></div>
+  <aside id="aside">
+    <h2 id="asideTitle">Not seated yet</h2>
+    <div class="tray" id="tray"></div>
+    <div class="trayNote" id="trayNote"></div>
+    <div class="grow"></div>
+    <div class="panel" id="panel"></div>
+  </aside>
+</div>
+
+<div id="psheets"></div>
+
+<div class="modal" id="modal"><div class="sheet">
+  <div class="hd"><h2 id="mtitle"></h2><p id="msub"></p></div>
+  <button class="x" id="mclose">✕</button>
+  <div class="bd" id="mbody"></div>
+</div></div>
+
+<script>
+const $ = id => document.getElementById(id);
+const esc = s => String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+/* Every call to the helper is given a deadline, and every call reports whether the
+   helper answered. A request that never comes back - which is what happens when the
+   helper has stopped while this window stayed open - used to leave whatever was waiting
+   on it waiting for ever. That is how Print came to do nothing at all: the first press
+   sat there unfinished and every press after it was turned away as "already printing". */
+const APIWAIT = 20000;
+const api = (p, o) => {
+  const ctl = typeof AbortController === 'function' ? new AbortController() : null;
+  const bell = setTimeout(() => { try { ctl && ctl.abort(); } catch(e){} },
+                          (o && o.wait) || APIWAIT);
+  return fetch(p+(p.includes('?')?'&':'?')+'t='+encodeURIComponent(TOKEN),
+      Object.assign({headers:{'X-Token':TOKEN}}, ctl ? {signal:ctl.signal} : {}, o||{}))
+    .then(r => r.json())
+    .then(r => { clearTimeout(bell); helperIs(true);  return r; },
+          e => { clearTimeout(bell); helperIs(false); throw e; });
+};
+
+/* Card size lives in one place. The CSS variables above must match these numbers —
+   test_geometry() at the bottom of the room maths asserts it. */
+const SEAT_W = 92, SEAT_H = 132, GAP = 12, PAD = 12, SNAP = 10, MARGIN = 24;
+const PITCH_X = SEAT_W + GAP, PITCH_Y = SEAT_H + GAP;
+const MIN_TW = 180, MIN_TH = 100;
+const MAXTAGS = 3;
+
+/* The grey outline for anyone with no photograph. The colours are written plainly here:
+   they used to arrive pre-escaped as %23, and then encodeURIComponent escaped the escape,
+   so the fill was a colour no browser knows and every one of them fell back to black.
+   Nobody saw it while every student came from iSAMS with a picture; a student added by
+   hand has none, and turned up as a black square. */
+const NOPIC = "data:image/svg+xml;utf8," + encodeURIComponent(
+  "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 46'><rect width='36' height='46' fill='#eeecea'/>"
+  +"<circle cx='18' cy='17' r='7' fill='#cbc7c2'/><ellipse cx='18' cy='40' rx='12' ry='13' fill='#cbc7c2'/></svg>");
+
+/* Deliberately worded as seating instructions, not as verdicts on the child.
+   A student reading "Build" or "Front" over your shoulder learns nothing about themselves.
+   The three English levels share one blue, light to dark, so they read as one scale. */
+const DEFAULT_TAGS = [
+  {id:'en3',   short:'Lead',  label:'Confident in English — a good partner for someone building', colour:'#14508f'},
+  {id:'en2',   short:'Mid',   label:'Developing English',                       colour:'#2a78d6'},
+  {id:'en1',   short:'Build', label:'Building English — seat beside a confident speaker', colour:'#a9cdf2'},
+  {id:'front', short:'Front', label:'Sit near the front',                       colour:'#eda100'},
+  {id:'plan',  short:'Plan',  label:'Has a learning plan',                      colour:'#7b2d8e'},
+  {id:'new',   short:'New',   label:'New this year',                            colour:'#1baf7a'},
+  {id:'calm',  short:'Calm',  label:'Works best in a calm spot',                colour:'#e87ba4'}
+];
+const SWATCHES = ['#2a78d6','#1baf7a','#eda100','#e87ba4','#7b2d8e','#c0392b','#5a7d2a','#8a7550'];
+
+/* Pick black or white ink for a chip so the word stays readable, whatever colour you
+   choose. sRGB relative luminance; the threshold favours dark ink on mid tones because
+   the text on a card is tiny and bold. */
+function ink(hex){
+  const h = String(hex || '').replace('#', '');
+  if (!/^[0-9a-fA-F]{6}$/.test(h)) return '#fff';
+  const f = v => { v /= 255; return v <= .03928 ? v / 12.92 : Math.pow((v + .055) / 1.055, 2.4); };
+  const L = .2126 * f(parseInt(h.slice(0,2),16))
+          + .7152 * f(parseInt(h.slice(2,4),16))
+          + .0722 * f(parseInt(h.slice(4,6),16));
+  return L > .28 ? '#141210' : '#fff';
+}
+const chipStyle = c => 'background:' + esc(c) + ';color:' + ink(c);
+
+let S = {classes:[], active:'', students:[], plan:{}};
+let editing = false, sel = null, selItem = null, dirty = null, zoom = 1, autoFit = true;
+let undoStack = [], printing = false, dragItem = false, altOK = true;
+
+/* A class can hold more than one plan - theory and practical, say. The room and the
+   seating belong to the plan; the labels, keep-apart pairs and pins are facts about the
+   students, so they are shared by every plan in the class. */
+function plans(){
+  const P = S.plan;
+  if (!P.plans){                                   // migrate a file written before plans existed
+    P.plans = [{id:'p1', name:'Main', layout:P.layout || null, seats:P.seats || {}, note:P.note || ''}];
+    P.current = 'p1';
+    delete P.layout; delete P.seats; delete P.note;
+  }
+  if (!P.plans.length) P.plans = [{id:'p1', name:'Main', layout:null, seats:{}, note:''}];
+  if (!P.plans.some(p => p.id === P.current)) P.current = P.plans[0].id;
+  return P.plans;
+}
+const cur    = () => plans().find(p => p.id === S.plan.current);
+const layout = () => (cur().layout ||= {name:'Room', w:1120, h:640, items:[]});
+const seats  = () => (cur().seats  ||= {});
+const tags   = () => (S.plan.tags   ||= DEFAULT_TAGS.map(t=>Object.assign({},t)));
+const marks  = () => (S.plan.marks  ||= {});
+const pairs  = () => (S.plan.pairs  ||= []);
+const pins   = () => (S.plan.pins   ||= {});
+const notes  = () => (S.plan.notes  ||= {});
+const show   = () => (S.plan.show   ||= {photos:1, surnames:1, labels:1, list:0, legend:1});
+
+/* What the printout carries, kept apart from what the screen shows so that setting up a
+   handout never disturbs the plan you are working on. Seeded once from the screen. */
+const pset = () => (S.plan.print ||= {
+  photos: show().photos ? 1 : 0, surnames: show().surnames ? 1 : 0,
+  names: 'preferred',                       // preferred | full | both
+  labels: show().labels ? 1 : 0, newb: 1,
+  legend: show().legend ? 1 : 0, list: show().list ? 1 : 0,
+  mono: show().mono ? 1 : 0, paper: show().paper || 'A4',
+});
+// While a printout is being laid out this stands in for show(), so the cards are drawn
+// the way the printout wants them without touching the screen's own settings.
+let printMode = null;
+const view = () => printMode || show();
+// The room as it was last drawn - the real one, or reading mode's grid in its place.
+let geom = null;
+const photoBase = () => 'Classes/' + encodeURIComponent(S.active) + '/photos/';
+const pic = s => s && s.photo ? photoBase()+encodeURIComponent(s.photo)+'.jpg' : NOPIC;
+const byId = id => S.students.find(s => s.id === id);
+const tagById = id => tags().find(t => t.id === id);
+
+/* ------------------------------------------------------------ room geometry */
+function tableSize(it){
+  const sq = it.seats||{};
+  return {
+    w: Math.max(MIN_TW, Math.max(sq.top||0, sq.bottom||0) * PITCH_X),
+    h: Math.max(MIN_TH, Math.max(sq.left||0, sq.right||0) * PITCH_Y)
+  };
+}
+function seatSlots(it){
+  const {w,h} = tableSize(it), sq = it.seats||{}, out = [];
+  const push=(edge,i,cx,cy)=>out.push({id:it.id+':'+edge+':'+i, item:it.id, edge, i, x:cx, y:cy});
+  for (let i=0;i<(sq.top||0);i++)    push('top',i,    it.x + (i+.5)*(w/sq.top),    it.y - SEAT_H/2 - PAD);
+  for (let i=0;i<(sq.bottom||0);i++) push('bottom',i, it.x + (i+.5)*(w/sq.bottom), it.y + h + SEAT_H/2 + PAD);
+  for (let i=0;i<(sq.left||0);i++)   push('left',i,   it.x - SEAT_W/2 - PAD,       it.y + (i+.5)*(h/sq.left));
+  for (let i=0;i<(sq.right||0);i++)  push('right',i,  it.x + w + SEAT_W/2 + PAD,   it.y + (i+.5)*(h/sq.right));
+  return out;
+}
+const allSlots = () => layout().items.filter(i=>i.type==='table').flatMap(seatSlots);
+
+/* the footprint of a piece of furniture including the chairs around it */
+function bounds(it){
+  if (it.type === 'table'){
+    const {w,h} = tableSize(it), sq = it.seats||{};
+    return {
+      x0: it.x     - ((sq.left||0)   ? SEAT_W + PAD : 0),
+      x1: it.x + w + ((sq.right||0)  ? SEAT_W + PAD : 0),
+      y0: it.y     - ((sq.top||0)    ? SEAT_H + PAD : 0),
+      y1: it.y + h + ((sq.bottom||0) ? SEAT_H + PAD : 0)
+    };
+  }
+  return {x0:it.x, x1:it.x + (it.w||60), y0:it.y, y1:it.y + (it.h||40)};
+}
+const hits = (a,b) => a.x0 < b.x1-1 && b.x0 < a.x1-1 && a.y0 < b.y1-1 && b.y0 < a.y1-1;
+
+function overlapping(){          // pairs of items whose footprints collide
+  const L = layout(), out = [];
+  for (let i=0;i<L.items.length;i++) for (let j=i+1;j<L.items.length;j++)
+    if (hits(bounds(L.items[i]), bounds(L.items[j]))) out.push([L.items[i], L.items[j]]);
+  return out;
+}
+
+/* The room is only a canvas. It grows and shrinks to hold whatever is in it. Anything
+   pushed off the top or left edge slides back into view, and a big wasted margin is
+   reclaimed once you let go of the mouse, so the plan never quietly zooms itself away. */
+const WASTE = 200;
+function fitRoom(){
+  const L = layout();
+  if (!L.items.length){ L.w = 900; L.h = 520; return false; }
+  let x0=Infinity, y0=Infinity, x1=0, y1=0;
+  for (const it of L.items){ const b = bounds(it);
+    x0=Math.min(x0,b.x0); y0=Math.min(y0,b.y0); x1=Math.max(x1,b.x1); y1=Math.max(y1,b.y1); }
+  const dx = (x0 < MARGIN || (x0 > WASTE && !dragItem)) ? MARGIN - x0 : 0;
+  const dy = (y0 < MARGIN || (y0 > WASTE && !dragItem)) ? MARGIN - y0 : 0;
+  let moved = false;
+  if (Math.abs(dx) > 0.5 || Math.abs(dy) > 0.5){
+    for (const it of L.items){ it.x = Math.round(it.x + dx); it.y = Math.round(it.y + dy); }
+    x1 += dx; y1 += dy; moved = true;
+  }
+  L.w = Math.max(760, Math.round(x1 + MARGIN));
+  L.h = Math.max(440, Math.round(y1 + MARGIN));
+  return moved;
+}
+
+/* ----------------------------------------------------------------- reading mode */
+/* What makes a plan hard to read at arm's length is the furniture. A table holds the
+   chairs around it the better part of a metre apart, and once a whole room of that has
+   been squeezed onto one sheet, the cards - and the names in them - are whatever is left
+   over. Reading mode takes the furniture out. Every chair keeps the row and the column
+   it is really in, so the plan still says who sits where and who is beside them, but the
+   space the tables were using goes back to the cards; and the grid is shaped to the
+   paper or the window it is going into rather than to the shape of the room. On a class
+   four across and six deep that is a name several times the height it is now. */
+const BIGGAP = 10;              // room pixels between one card and the next
+const BIGBAND = 15;             // and the grey standing in for a table between two of them
+const BIGWALK = 30;             // the most a gangway is ever widened back out to
+const BIGPAD = 12;              // and inside a card, left and right
+const NAMEW  = 0.58;            // width of an average letter as a fraction of its height
+const NAMECH = 8.5;             // letters a first name is given before it has to shrink
+const BIGAREA = 26000;          // card area in room pixels - only its shape matters here
+const BIGSHAPE = [0.62, 3.6];   // and the shape is held between these
+
+const bigOn = () => !!view().big && !editing;
+// 'both' is what this switch was before it was a switch; settings saved then still work.
+const wantReal = v => !!(v.realname || v.names === 'both');
+
+/* What goes on a card is one decision, not two. Setting a plan up the way you want it and
+   then setting the same thing up a second time in the print dialog was the same work
+   twice, and the two drifting apart was a trap of its own: the sheet came out unlike the
+   plan you had been looking at and nothing said why. So the sheet follows the screen, and
+   only the things that are true of paper alone - its size, which way round, the class
+   list, the key, black and white, which classes - are decided in the dialog. Untick it
+   there and the old behaviour comes back, per class. */
+const CARDKEYS = ['photos','surnames','realname','newb','labels','big'];
+const follows = P => P.follow === undefined ? true : !!P.follow;
+function cardSettings(P){
+  const from = follows(P) ? show() : P;
+  const out = {};
+  for (const k of CARDKEYS) out[k] = from[k] ? 1 : 0;
+  // The New badge was on before it had a switch, so absent still means on.
+  if (from.newb === undefined) out.newb = 1;
+  if (!follows(P) && wantReal(P)) out.realname = 1;
+  // Which name leads is a choice rather than a switch, so it is carried, not coerced.
+  out.names = from.names || 'preferred';
+  return out;
+}
+
+/* Positions along one edge, as ordered ranks: every chair really in the same row comes
+   back with the same row number. Measured from the start of a run rather than from the
+   chair before it, so a long line of chairs cannot chain itself into a single row. */
+function ranks(vals, tol){
+  const u = [...new Set(vals)].sort((a,b) => a-b);
+  const m = new Map(); let k = 0, start = u[0];
+  u.forEach((v,i) => { if (i && v - start > tol){ k++; start = v; } m.set(v, k); });
+  return m;
+}
+
+/* Which way the room faces. The furniture is not drawn in reading mode, but what is at
+   the front of it is worth one line: without that, a grid of names says who is beside
+   whom and nothing at all about which way they are looking. */
+function bigFront(){
+  const L = layout(), mid = it => it.y + (it.h||0)/2;
+  const named = L.items.filter(it => it.type !== 'table' && it.label);
+  const top = named.filter(it => mid(it) < L.h*0.42).sort((a,b) => a.y - b.y);
+  const bot = named.filter(it => mid(it) > L.h*0.58).sort((a,b) => a.y - b.y);
+  const pick = top.length >= bot.length ? top : bot;      // whichever end has more of them
+  if (!pick.length) return null;
+  return {where: pick === top ? 'top' : 'bottom',
+          text: pick.map(it => it.label).slice(0,5).join('   ·   ')};
+}
+
+/* One card of a given shape, and the largest name it can carry. A name is held back by
+   two different things at once: the width it has to fit across, and the height left over
+   once whatever goes under it has had its share. Which of the two is doing the holding
+   depends on the shape, and that is what makes the shape worth choosing rather than
+   assuming. The photograph stands beside the name rather than above it, so a wide card
+   still leaves the name most of its width. */
+function bigCard(r, v){
+  const w = Math.round(Math.sqrt(BIGAREA * r)), h = Math.round(Math.sqrt(BIGAREA / r));
+  const pw = v.photos ? Math.round(Math.min(w*0.30, h*0.62)) : 0;
+  const ph = pw ? Math.round(pw*1.22) : 0;
+  const across = w - 2*BIGPAD - (pw ? pw + 8 : 0);
+  const under = (v.surnames ? 0.74 : 0)                          // what sits below the name
+              + (wantReal(v) ? 0.6 : 0)
+              + (v.labels ? 0.5 : 0);
+  const nm = Math.max(11, Math.min(across / (NAMECH*NAMEW), (h - 12) / (1.12 + under), 88));
+  return {w, h, pw, ph, nm: Math.round(nm),
+          sn: Math.max(9, Math.round(nm*0.62)), tg: Math.max(8, Math.round(nm*0.34))};
+}
+
+/* aspect is the shape of the space this grid is going into, width over height.
+
+   A wider card gives the name more room across but leaves less of that space for the
+   rows underneath; a taller card does the reverse. The two pull against each other, and
+   which way they settle depends on how much is on a card - a card with no photograph on
+   it has width to spare and wants to be taller, one with a photograph does not. Rather
+   than guess at a rule for all that, the shapes are simply tried, and the one that ends
+   with the largest name on the finished sheet is the one that is used. That is what
+   makes turning the photographs off give bigger names rather than the same ones. */
+function bigGrid(aspect){
+  const src = allSlots(), v = view();
+  const blank = {w:760, h:440, slots:[], bands:[], cols:0, rows:0, front:null,
+                 card:{w:200,h:120,pw:0,ph:0,nm:20,sn:11,tg:9}};
+  if (!src.length) return blank;
+
+  const cx = ranks(src.map(s=>s.x), SEAT_W*0.55), cy = ranks(src.map(s=>s.y), SEAT_H*0.55);
+  const cols = Math.max(...cx.values()) + 1, rows = Math.max(...cy.values()) + 1;
+
+  const front = bigFront();
+  const above = front && front.where === 'top' ? 34 : 0;
+  const below = front && front.where === 'bottom' ? 34 : 0;
+
+  /* Where each row and each column really is, so the gaps between them can be measured
+     rather than assumed. */
+  const middle = (m, k) => {
+    const sum = [], count = [];
+    src.forEach(s => { const i = m.get(s[k]);
+                       sum[i] = (sum[i]||0) + s[k]; count[i] = (count[i]||0) + 1; });
+    return sum.map((t,i) => t/count[i]);
+  };
+  const ox = middle(cx,'x'), oy = middle(cy,'y');
+  const tables = layout().items.filter(it => it.type === 'table')
+                   .map(it => Object.assign({}, it, tableSize(it)));
+
+  /* The room's own gaps, kept in miniature. Between two rows of chairs that sit at the
+     same table there is a table, and a slim grey band goes where it was; between two that
+     have nothing but floor between them - a gangway, a space someone walks down - the gap
+     is opened back out in proportion to how much floor there really is. Neither is
+     anything like its real depth, because that space is exactly what this mode is
+     reclaiming, but it is enough that the plan still reads as your room and not as an
+     anonymous block of names. */
+  const between = (o, seat, lo, hi) => o.map((c,i) => {
+    if (!i) return null;
+    const prev = o[i-1];
+    const table = tables.find(it => lo(it) > prev && hi(it) < c) || null;
+    return {table, floor: Math.max(0, c - prev - seat)};
+  });
+  const downCols = between(ox, SEAT_W, it => it.x, it => it.x + it.w);
+  const downRows = between(oy, SEAT_H, it => it.y, it => it.y + it.h);
+  const gapAt = b => !b ? 0 : b.table ? BIGGAP + BIGBAND
+                            : BIGGAP + Math.min(BIGWALK, Math.round(b.floor * 0.14));
+  const gapX = downCols.map(gapAt), gapY = downRows.map(gapAt);
+  const sumX = gapX.reduce((a,b) => a+b, 0), sumY = gapY.reduce((a,b) => a+b, 0);
+
+  const roomFor = c => ({w: 2*MARGIN + cols*c.w + sumX,
+                         h: 2*MARGIN + above + below + rows*c.h + sumY});
+
+  // The space is a box of the shape asked for; its actual size cancels out of the
+  // comparison, so it can be any box of that shape.
+  const A = aspect > 0 ? aspect : 1.5;
+  let card = null, room = null, best = -1;
+  for (let i = 0; i <= 24; i++){
+    const c = bigCard(BIGSHAPE[0] * Math.pow(BIGSHAPE[1]/BIGSHAPE[0], i/24), v);
+    const R = roomFor(c);
+    const onPaper = c.nm * Math.min(A / R.w, 1 / R.h);
+    if (onPaper > best){ best = onPaper; card = c; room = R; }
+  }
+  const w = card.w, h = card.h;
+
+  // Where each row and column ends up, once the gaps have had their say.
+  const run = (count, size, gaps, from) => {
+    const out = []; let at = from;
+    for (let i = 0; i < count; i++){ at += gaps[i] || 0; out.push(at + size/2); at += size; }
+    return out;
+  };
+  const px = run(cols, w, gapX, MARGIN), py = run(rows, h, gapY, MARGIN + above);
+
+  /* A table, drawn as the grey it has been reduced to: lying in the gap between the two
+     rows of chairs that sit at it, and only as long as the run of chairs it serves. */
+  const bands = [];
+  for (const it of tables){
+    const spans = (o, pos, size, lo, hi) => {           // the ranks this table reaches
+      const on = [];
+      o.forEach((c,i) => { if (c > lo - size && c < hi + size) on.push(i); });
+      return on.length ? {from: pos[on[0]] - size/2, to: pos[on[on.length-1]] + size/2} : null;
+    };
+    const inGap = (o, pos, size, gaps, lo, hi) => {     // the gap it sits in, if it sits in one
+      for (let i = 1; i < o.length; i++)
+        if (lo > o[i-1] && hi < o[i]) return {at: pos[i-1] + size/2, thick: gaps[i]};
+      return null;
+    };
+    const acrossX = inGap(ox, px, w, gapX, it.x, it.x + it.w);
+    const acrossY = inGap(oy, py, h, gapY, it.y, it.y + it.h);
+    if (acrossX){
+      const down = spans(oy, py, h, it.y, it.y + it.h);
+      if (down) bands.push({x: acrossX.at + 4, y: down.from,
+                            w: Math.max(4, acrossX.thick - 8), h: down.to - down.from});
+    } else if (acrossY){
+      const along = spans(ox, px, w, it.x, it.x + it.w);
+      if (along) bands.push({x: along.from, y: acrossY.at + 4,
+                             w: along.to - along.from, h: Math.max(4, acrossY.thick - 8)});
+    }
+  }
+
+  return {cols, rows, card, front, bands,
+    slots: src.map(s => Object.assign({}, s, {x: px[cx.get(s.x)], y: py[cy.get(s.y)]})),
+    w: room.w, h: room.h};
+}
+
+// The card sizes travel with the grid, so one lot of markup serves both sizes of it.
+const bigVars = G => !G || !G.slots ? '' :
+  `--bigw:${G.card.w}px;--bigh:${G.card.h}px;--bignm:${G.card.nm}px;--bigsn:${G.card.sn}px;`
+  + `--bigtg:${G.card.tg}px;--bigpw:${G.card.pw}px;--bigph:${G.card.ph}px;--bigpad:${BIGPAD}px`;
+
+/* The room about to be drawn on screen: the real one, or the grid shaped to the window. */
+function drawGeom(){
+  if (!bigOn()) return {w: layout().w, h: layout().h};
+  const wrap = $('roomwrap');
+  const a = wrap && wrap.clientHeight > 80
+    ? (wrap.clientWidth - 48) / (wrap.clientHeight - 48) : 1.5;
+  return bigGrid(a);
+}
+
+/* A card is sized for a name of about eight letters. Anyone longer is given their own
+   size rather than cut off with a full stop, so the short names - which is most of a
+   class - stay as large as the card can carry. */
+function fitNames(host){
+  host.querySelectorAll('.room.big .seat .nm').forEach(el => {
+    el.style.fontSize = '';
+    const base = parseFloat(getComputedStyle(el).fontSize);
+    if (!(base > 0)) return;
+    // Height as well as width. A card is sized for the name it expects, but a register
+    // name can be three words long, and whatever the reason a card is over-full the
+    // answer is the same: give that one student a smaller name rather than let the card
+    // quietly spill its contents over the one below it.
+    const up = el.closest('.up');
+    const over = () => el.scrollWidth > el.clientWidth + 1
+                    || (up && (up.scrollHeight > up.clientHeight + 1
+                            || up.scrollWidth  > up.clientWidth  + 1));
+    let f = base, step = Math.max(0.5, base*0.05);
+    while (over() && f > base*0.5){ f -= step; el.style.fontSize = f + 'px'; }
+  });
+}
+
+function applyZoom(force){
+  const wrap = $('roomwrap'), sc = $('roomscale'), room = $('room'), L = geom || layout();
+  if (force) zoom = force;
+  else if (autoFit){
+    zoom = Math.min(1, (wrap.clientWidth - 48) / L.w, (wrap.clientHeight - 48) / L.h);
+    if (!isFinite(zoom) || zoom <= 0) zoom = 1;
+  }
+  sc.style.width  = (L.w * zoom) + 'px';
+  sc.style.height = (L.h * zoom) + 'px';
+  const flipped = room.classList.contains('flip');
+  room.style.transformOrigin = 'top left';
+  room.style.transform = 'scale(' + zoom + ')' +
+    (flipped ? ' translate(' + L.w + 'px,' + L.h + 'px) rotate(180deg)' : '');
+  $('zoomLbl').textContent = Math.round(zoom * 100) + '%';
+}
+
+/* --------------------------------------------------------- who sits near whom */
+function neighbourMap(){
+  const slots = allSlots(), map = {};
+  slots.forEach(s => map[s.id] = []);
+  for (let a=0;a<slots.length;a++) for (let b=a+1;b<slots.length;b++){
+    const A = slots[a], B = slots[b];
+    let near = false;
+    if (A.item === B.item){
+      if (A.edge === B.edge && Math.abs(A.i - B.i) === 1) near = true;
+      else if ((A.edge==='top'&&B.edge==='bottom')||(A.edge==='bottom'&&B.edge==='top'))
+        near = Math.abs(A.x - B.x) < PITCH_X * 0.8;
+      else if ((A.edge==='left'&&B.edge==='right')||(A.edge==='right'&&B.edge==='left'))
+        near = Math.abs(A.y - B.y) < PITCH_Y * 0.8;
+    }
+    if (!near) near = Math.hypot(A.x-B.x, A.y-B.y) < PITCH_X * 1.15;   // tables pushed together
+    if (near){ map[A.id].push(B.id); map[B.id].push(A.id); }
+  }
+  return map;
+}
+const pairKey = (a,b) => [a,b].sort().join('');
+function clashes(map, seatMap){
+  const nb = map || neighbourMap(), sm = seatMap || seats();
+  const where = {}; for (const k in sm) if (sm[k]) where[sm[k]] = k;
+  const out = [];
+  for (const [a,b] of pairs()){
+    const sa = where[a], sb = where[b];
+    if (sa && sb && (nb[sa]||[]).includes(sb)) out.push([a,b]);
+  }
+  return out;
+}
+
+/* ------------------------------------------------------------------- saving */
+function planBody(){
+  return JSON.stringify({
+    class:S.active, plans:S.plan.plans, current:S.plan.current, tags:S.plan.tags,
+    marks:S.plan.marks, pairs:S.plan.pairs, pins:S.plan.pins,
+    show:S.plan.show, print:S.plan.print, notes:S.plan.notes});
+}
+function save(){
+  clearTimeout(dirty);
+  dirty = setTimeout(() => { dirty = null;
+    api('/api/plan', {method:'POST', body: planBody()}).catch(()=>{}); }, 400);
+}
+/* Whatever is still sitting on that timer, written now. A save is addressed to a class
+   by name, and renaming one moves the folder underneath it - so anything still waiting
+   has to land first, or the last thing the teacher did is quietly lost. */
+async function flushSave(){
+  if (!dirty) return;
+  clearTimeout(dirty); dirty = null;
+  await api('/api/plan', {method:'POST', body: planBody()}).catch(()=>{});
+}
+function snapshot(){
+  undoStack.push(JSON.stringify({seats:seats(), pins:pins()}));
+  if (undoStack.length > 40) undoStack.shift();
+  const u = $('undo'); if (u) u.disabled = false;
+}
+function undo(){
+  if (!undoStack.length) return;
+  const s = JSON.parse(undoStack.pop());
+  cur().seats = s.seats; S.plan.pins = s.pins;
+  sel = null; $('undo').disabled = !undoStack.length;
+  save(); render();
+}
+
+/* ------------------------------------------------------------------ drawing */
+function tagRow(id, max){
+  if (!view().labels) return '';
+  const list = (marks()[id]||[]).map(tagById).filter(Boolean);
+  if (!list.length) return '';
+  const cap = max || MAXTAGS, vis = list.slice(0, cap), extra = list.length - vis.length;
+  return '<div class="tags">' + vis.map(t =>
+      `<span class="tg" style="${chipStyle(t.colour)}" title="${esc(t.label)}">${esc(t.short||t.label)}</span>`
+    ).join('') + (extra ? `<span class="tg more">+${extra}</span>` : '') + '</div>';
+}
+function cardBody(st){
+  const v = view(), mode = v.names || 'preferred';
+  const legal = st.forename || st.first;          // the name on the register
+  const top = mode === 'full' ? legal : st.first;
+  /* Their real name, straight under the one they go by and in brackets, with the
+     surname below the pair of them - the two forenames belong together, and a surname
+     sitting between them reads as though it belonged to the first one only. Whichever of
+     the two names is not the big one is the one that goes in the brackets, so the switch
+     reads the same way round whichever name you have chosen to lead with. The brackets
+     are the point: they make it an aside rather than a second name competing. */
+  const other = mode === 'full' ? st.first : legal;
+  const alt = (wantReal(v) && other && other !== top) ? '(' + other + ')' : '';
+  const badge = (st.isNew && v.newb !== 0)
+      ? '<span class="newb" title="First year in the school">NEW</span>' : '';
+  const words = `<span class="nm">${esc(top)}</span>`
+       + (alt ? `<span class="alt">${esc(alt)}</span>` : '')
+       + `<span class="sub2">${esc(st.surname)}</span>`
+       + tagRow(st.id);
+  // Reading mode stands the photograph beside the name instead of above it, so the words
+  // need a column of their own to sit in.
+  return bigOn() ? `${badge}<img src="${pic(st)}" alt=""><span class="txt2">${words}</span>`
+                 : `${badge}<img src="${pic(st)}" alt="">${words}`;
+}
+
+/* The furniture and the chairs, as markup. The screen and the printout both go through
+   here, so a sheet can never be drawn by different code from the plan you were looking at. */
+function roomHTML(G){
+  const big = !!(G && G.slots);
+  const L = layout();
+  const bump = new Set();
+  if (editing) for (const [a,b] of overlapping()){ bump.add(a.id); bump.add(b.id); }
+
+  let html = big && G.front
+    ? `<div class="bigfront ${G.front.where}">${esc(G.front.text)}</div>` : '';
+  if (big) for (const b of (G.bands || []))
+    html += `<div class="bigtable" style="left:${b.x}px;top:${b.y}px;width:${b.w}px;height:${b.h}px"></div>`;
+  for (const it of (big ? [] : L.items)){
+    const bad = bump.has(it.id) ? ' bump' : '', s = selItem===it.id ? ' sel' : '';
+    if (it.type === 'table'){
+      const {w,h} = tableSize(it);
+      html += `<div class="table${s}${bad}" data-item="${esc(it.id)}"
+        style="left:${it.x}px;top:${it.y}px;width:${w}px;height:${h}px"><span class="up">${esc(it.label||'')}</span></div>`;
+    } else {
+      html += `<div class="marker ${esc(it.shape||'note')}${s}${bad}" data-item="${esc(it.id)}"
+        style="left:${it.x}px;top:${it.y}px;width:${it.w}px;height:${it.h}px"><span class="up">${esc(it.label||'')}</span></div>`;
+    }
+  }
+  const bad = new Set();
+  // Always, and only where you can act on it. A sheet is printed once the plan is
+  // settled, and a red ring round two named children does not belong on paper.
+  if (!printMode) for (const [a,b] of clashes()){ bad.add(a); bad.add(b); }
+  const cw = big ? G.card.w : SEAT_W, chh = big ? G.card.h : SEAT_H;
+  for (const sl of (big ? G.slots : allSlots())){
+    const st = byId(seats()[sl.id]);
+    const cls = 'seat' + (st?' taken':'') + (sel && sel.seat===sl.id ? ' sel':'')
+              + (st && bad.has(st.id) ? ' clash':'') + (st && pins()[st.id] ? ' pinned':'');
+    html += `<div class="${cls}" data-seat="${esc(sl.id)}"${st?' data-st="'+esc(st.id)+'"':''}
+       style="left:${sl.x - cw/2}px;top:${sl.y - chh/2}px">
+       <div class="up">${st ? cardBody(st) : '<span class="empty">empty</span>'}</div></div>`;
+  }
+  return html;
+}
+
+function render(){
+  const room = $('room');
+  if (fitRoom()) save();
+  geom = drawGeom();
+  room.style.cssText = `width:${geom.w}px;height:${geom.h}px;${bigVars(geom)}`;
+  room.classList.toggle('editing', editing);
+  // On the room, for the cards; on the document, for the tray and the drag ghost.
+  room.classList.toggle('big', bigOn());
+  room.classList.toggle('nophoto', !view().photos);
+  room.classList.toggle('nosur',  !view().surnames);
+  document.body.classList.toggle('nophoto', !view().photos);
+  document.body.classList.toggle('nosur',  !view().surnames);
+  room.innerHTML = roomHTML(geom);
+  fitNames(room);
+  $('aside').classList.toggle('editmode', editing);
+  applyZoom();
+
+  room.querySelectorAll('[data-seat]').forEach(el =>
+    el.onpointerdown = e => seatDown(e, el.dataset.seat));
+  if (editing) room.querySelectorAll('[data-item]').forEach(el =>
+    el.onpointerdown = e => startDrag(e, el.dataset.item));   // pressing it also selects it
+  paintTray(); paintCap(); paintAlert(); panel(); infoPanel();
+}
+
+function paintTray(){
+  const taken = new Set(Object.values(seats()).filter(Boolean));
+  const left = S.students.filter(s => !taken.has(s.id));
+  $('asideTitle').textContent = editing ? 'Room pieces' : `Not seated (${left.length})`;
+  $('tray').style.display = editing ? 'none' : '';
+  $('trayNote').style.display = editing ? 'none' : '';
+  if (editing) return;
+  $('tray').innerHTML = left.map(s => `<div class="chip2${sel&&sel.student===s.id&&!sel.seat?' sel':''}"
+      data-st="${esc(s.id)}"><img src="${pic(s)}" alt="">
+      <div class="txt"><b>${esc(s.first)}</b><span class="sn">${esc(s.surname)}</span>${tagRow(s.id,4)}</div></div>`).join('')
+    || `<div class="trayNote" style="padding:8px 4px">${S.students.length
+          ? 'Everyone has a seat.'
+          : 'Nobody is in this class yet — Classes → Add a student…'}</div>`;
+  $('tray').querySelectorAll('[data-st]').forEach(el =>
+    el.onpointerdown = e => beginDrag(e, el.dataset.st, null));
+  $('trayNote').innerHTML = sel
+    ? 'Now click an <b>empty</b> chair — or drag them anywhere. Click them again to let go.'
+    : 'Drag a student onto a chair to move them, or onto another student to swap the two. '
+    + 'Clicking only ever picks someone up. Drag one back here to unseat them.';
+}
+
+function paintCap(){
+  const n = allSlots().length, st = S.students.length, el = $('cap');
+  if (!st){ el.textContent=''; return; }
+  const over = st - n;
+  el.className = 'cap' + (over > 0 ? ' bad' : '');
+  el.innerHTML = over > 0
+    ? `<b>${n} chairs</b> for <b>${st} students</b> — ${over} with nowhere to sit`
+    : `<b>${n} chairs</b> · ${st} students · ${n-st} spare`;
+}
+
+/* The window and the helper behind it are two separate things, and the window carries on
+   looking perfectly normal after the helper has gone: the plan is already drawn, so
+   nothing on screen changes. In that state nothing reaches the disk. Saying nothing was
+   the worst of it - an afternoon's work looked saved when it was not - so a helper that
+   has stopped answering now says so, and goes on saying so until it is answering again. */
+let helperOK = true;
+function helperIs(ok){
+  if (ok === helperOK) return;
+  helperOK = ok;
+  if (S && S.students) paintAlert();
+}
+
+function paintAlert(){
+  const el = $('alert'), msgs = [];
+  if (!helperOK){
+    el.hidden = false;
+    el.innerHTML = '<div><b>The helper behind this window has stopped.</b> Nothing is being '
+      + 'saved and printing will not work. Close Seating Plan and open it again — the plan '
+      + 'on screen is safe up to the last time it saved.</div>'
+      + '<button class="btn" id="rehome">Open it again</button>';
+    const r = $('rehome');
+    if (r) r.onclick = () => location.reload();
+    return;
+  }
+  if (!editing)
+    for (const [a,b] of clashes()){
+      const A = byId(a), B = byId(b);
+      if (A && B) msgs.push(`<b>${esc(A.first)} ${esc(A.surname)}</b> and <b>${esc(B.first)} ${esc(B.surname)}</b> are sitting together`);
+    }
+  if (editing) for (const [a,b] of overlapping())
+    msgs.push(`<b>${esc(a.label||'A piece')}</b> and <b>${esc(b.label||'another')}</b> overlap`);
+  if (!msgs.length){ el.hidden = true; el.innerHTML = ''; return; }
+  el.hidden = false;
+  el.innerHTML = '<div>' + msgs.slice(0,3).join(' · ')
+    + (msgs.length>3 ? ` · and ${msgs.length-3} more` : '') + '</div>'
+    + (editing ? '' : '<button class="btn" id="fixit">Try to fix it</button>');
+  const f = $('fixit'); if (f) f.onclick = () => fill('random');
+}
+
+/* -------------------------------------------------------------- seating */
+function seatDown(e, id){
+  if (editing) return;
+  const occ = seats()[id];
+  if (occ) beginDrag(e, occ, id); else clickSeat(id, e.altKey);
+}
+/* Click picks a student up. Drag moves them. Clicking a second student only ever means
+   "I meant that one instead" - never a swap, which is what dragging is for. Hold alt
+   while clicking if you want the old two-click swap back. */
+function clickSeat(id, swap){
+  if (editing) return;
+  const occ = seats()[id];
+  if (sel && sel.seat === id){ sel = null; render(); return; }        // clicking them again lets go
+  if (occ && !(swap && sel && sel.student && sel.student !== occ)){
+    sel = {student:occ, seat:id}; render(); return;                   // just select them
+  }
+  if (sel && sel.student){                    // an empty chair is unambiguous, so seat them
+    snapshot();
+    const me = sel.student, from = sel.seat;
+    for (const k in seats()) if (seats()[k] === me) delete seats()[k];
+    if (occ && occ !== me && from) seats()[from] = occ;               // only ever via alt-click
+    seats()[id] = me;
+    sel = null; save(); render(); return;
+  }
+  if (sel){ sel = null; render(); }
+}
+function clickStudent(id, fromSeat){
+  sel = (sel && sel.student === id && sel.seat === (fromSeat||null)) ? null : {student:id, seat:fromSeat||null};
+  render();
+}
+function unseat(seatId){
+  if (!seats()[seatId]) return;
+  snapshot(); delete seats()[seatId]; sel = null; save(); render();
+}
+
+/* ------------------------------------------------------- drag and drop */
+let drag = null;
+function beginDrag(e, studentId, fromSeat){
+  if (editing || (e.button && e.button !== 0)) return;
+  e.preventDefault();
+  const st = byId(studentId); if (!st) return;
+  const sx = e.clientX, sy = e.clientY;
+  drag = {id:studentId, from:fromSeat||null, moved:false, ghost:null, over:null, alt:e.altKey};
+
+  const move = ev => {
+    if (!drag) return;
+    if (!drag.moved){
+      if (Math.hypot(ev.clientX-sx, ev.clientY-sy) < 5) return;
+      drag.moved = true;
+      document.body.classList.add('dragging');
+      const g = document.createElement('div');
+      g.className = 'ghost'; g.innerHTML = cardBody(st);
+      document.body.appendChild(g); drag.ghost = g;
+    }
+    drag.ghost.style.left = (ev.clientX - SEAT_W/2) + 'px';
+    drag.ghost.style.top  = (ev.clientY - SEAT_H/2) + 'px';
+    const t = under(ev);
+    if (drag.over !== (t.seat||null)){
+      if (drag.over){ const p = document.querySelector('[data-seat="'+CSS.escape(drag.over)+'"]');
+                      if (p) p.classList.remove('drop'); }
+      drag.over = t.seat || null;
+      if (drag.over){ const p = document.querySelector('[data-seat="'+CSS.escape(drag.over)+'"]');
+                      if (p) p.classList.add('drop'); }
+    }
+    $('aside').classList.toggle('drop2', !!t.aside && !!drag.from);
+  };
+  const up = ev => {
+    document.removeEventListener('pointermove', move);
+    document.removeEventListener('pointerup', up);
+    document.removeEventListener('pointercancel', up);
+    const d = drag; drag = null;
+    document.body.classList.remove('dragging');
+    $('aside').classList.remove('drop2');
+    if (d.ghost) d.ghost.remove();
+    // a press with no movement is a click: on a chair that means select / swap / move,
+    // in the tray it just picks the student up
+    if (!d.moved){ if (d.from) clickSeat(d.from, d.alt); else clickStudent(d.id, null); return; }
+    const t = under(ev);
+    if (t.seat) dropOn(t.seat, d.id, d.from);
+    else if (t.aside && d.from) unseat(d.from);
+    else render();
+  };
+  document.addEventListener('pointermove', move);
+  document.addEventListener('pointerup', up);
+  document.addEventListener('pointercancel', up);
+}
+function under(ev){
+  const el = document.elementFromPoint(ev.clientX, ev.clientY);
+  if (!el) return {};
+  const s = el.closest('[data-seat]');
+  return {seat: s ? s.dataset.seat : null, aside: !!el.closest('aside')};
+}
+function dropOn(seatId, studentId, fromSeat){
+  const cur = seats()[seatId];
+  if (cur === studentId){ sel = null; render(); return; }
+  snapshot();
+  for (const k in seats()) if (seats()[k] === studentId) delete seats()[k];
+  if (cur){ if (fromSeat) seats()[fromSeat] = cur; }               // swap, else they go to the tray
+  seats()[seatId] = studentId;
+  sel = null; save(); render();
+}
+
+/* ------------------------------------------------------------ auto-arrange */
+function orderOf(mode){
+  const list = S.students.slice();
+  if (mode === 'alpha')
+    return list.sort((a,b)=>(a.surname+a.first).localeCompare(b.surname+b.first)).map(s=>s.id);
+  for (let i=list.length-1;i>0;i--){ const j = Math.floor(Math.random()*(i+1));
+    [list[i], list[j]] = [list[j], list[i]]; }
+  const shuffled = list;
+  if (mode !== 'alt') return shuffled.map(s=>s.id);
+  const m = shuffled.filter(s=>s.gender==='M'), f = shuffled.filter(s=>s.gender==='F'),
+        o = shuffled.filter(s=>s.gender!=='M'&&s.gender!=='F'), out = [];
+  const A = m.length >= f.length ? m : f, B = A === m ? f : m;
+  for (let i=0;i<Math.max(A.length,B.length);i++){ if (A[i]) out.push(A[i]); if (B[i]) out.push(B[i]); }
+  return out.concat(o).map(s=>s.id);
+}
+function place(ids){
+  const slots = allSlots(), out = {}, held = new Set();
+  for (const k in seats()){ const id = seats()[k];
+    if (id && pins()[id] && slots.some(s=>s.id===k)){ out[k] = id; held.add(id); } }
+  const free = slots.filter(s => !out[s.id]);
+  let i = 0;
+  for (const id of ids){ if (held.has(id)) continue; if (i >= free.length) break; out[free[i++].id] = id; }
+  return out;
+}
+function fill(mode){
+  const nb = neighbourMap();
+  let best = null, bestN = Infinity;
+  const tries = (mode === 'alpha') ? 1 : 400;
+  for (let t=0; t<tries; t++){
+    const cand = place(orderOf(mode));
+    const n = clashes(nb, cand).length;
+    if (n < bestN){ best = cand; bestN = n; }
+    if (!bestN) break;
+  }
+  snapshot();
+  cur().seats = best || {};
+  sel = null; save(); render();
+  if (bestN > 0) flash(mode === 'alpha'
+    ? 'A–Z puts some of your keep-apart pairs together — nothing it can do about that.'
+    : 'Could not keep every pair apart with this room. Move a chair or two by hand.');
+}
+let flashT = null;
+function flash(msg){
+  const el = $('alert'); el.hidden = false;
+  el.innerHTML = '<div>' + esc(msg) + '</div>';
+  clearTimeout(flashT); flashT = setTimeout(paintAlert, 6000);
+}
+
+/* ------------------------------------------------------------- the panels */
+let panelKey = '';
+function panel(){
+  const p = $('panel');
+  if (dragItem) return;                       // don't rebuild it 60 times a second
+  const key = editing ? 'room:' + (selItem||'')
+            : (sel && sel.student ? 'student:' + sel.student : 'show');
+  const a = document.activeElement;           // never yank a box out from under the cursor,
+  if (key === panelKey && a && p.contains(a)  // unless the panel is showing something else now
+      && (a.tagName === 'TEXTAREA' ||
+          (a.tagName === 'INPUT' && ['text','number','search',''].includes((a.type||'').toLowerCase())))) return;
+  panelKey = key;
+  if (editing) return roomPanel(p);
+  if (sel && sel.student) return studentPanel(p, byId(sel.student));
+  return showPanel(p);
+}
+
+/* ----------------------------------------------------- who is this student?
+   The facts, on the left, the moment you click someone: the things you would
+   otherwise have to go back to the spreadsheet for. Rows with nothing behind them
+   are left out rather than shown blank. A class imported before the enrolment year
+   was read simply has fewer rows. */
+function infoPanel(){
+  const el = $('info');
+  const st = (!editing && sel && sel.student) ? byId(sel.student) : null;
+  if (!st){ el.hidden = true; el.innerHTML = ''; return; }
+  el.hidden = false;
+
+  const seatId = Object.keys(seats()).find(k => seats()[k] === st.id);
+  const my = (marks()[st.id] || []).map(id => (tags().find(t=>t.id===id)||{}).label).filter(Boolean);
+  const apart = pairs().filter(x=>x[0]===st.id||x[1]===st.id)
+                       .map(x => { const o = byId(x[0]===st.id?x[1]:x[0]); return o ? o.name : null; })
+                       .filter(Boolean);
+  const age = (() => {
+    if (!st.birth_year || !st.dob) return '';
+    const [d, m, y] = st.dob.split('/').map(Number);
+    if (!d || !m || !y) return '';
+    const now = new Date(); let a = now.getFullYear() - y;
+    if (now.getMonth() + 1 < m || (now.getMonth() + 1 === m && now.getDate() < d)) a--;
+    return a > 0 && a < 30 ? a + ' years old' : '';
+  })();
+  const dob = st.dob && st.dob.split('/').every(Boolean)
+    ? (() => { const [d,m,y] = st.dob.split('/');
+               return d + ' ' + ['','January','February','March','April','May','June','July',
+                 'August','September','October','November','December'][+m] + ' ' + y; })()
+    : '';
+
+  const rows = [
+    ['Year group', st.year],
+    ['Form',       st.form],
+    ['House',      st.house],
+    ['Day or boarding', st.status],
+    ['Joined in',  st.enrolled ? 'Year ' + st.enrolled : ''],
+    ['Birthday',   [dob, age].filter(Boolean).join(' · ')],
+    ['Seat',       seatId ? (pins()[st.id] ? 'Seated — pinned' : 'Seated') : 'Not seated yet'],
+    ['Labels',     my.join(', ')],
+    ['Keep apart from', apart.join(', ')],
+    ['Note',       (notes()[st.id] || '').trim()],
+  ].filter(([, v]) => v);
+
+  el.innerHTML = `
+    <div class="who"><img src="${pic(st)}" alt="">
+      <div><b>${esc(st.name)}</b>${(() => {
+        const sub = [st.legal, st.tutee ? 'Your tutee' : ''].filter(Boolean).join(' · ');
+        return sub ? `<span>${esc(sub)}</span>` : '';     // nothing useful to add, so say nothing
+      })()}</div></div>
+    ${st.isNew ? `<div class="newRow"><b>New this year</b>
+        ${esc(st.first)} joined in ${esc(st.year || 'this year group')}, so this is
+        ${st.gender === 'F' ? 'her' : st.gender === 'M' ? 'his' : 'their'} first year here.</div>` : ''}
+    <dl>${rows.map(([k,v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join('')}</dl>`;
+}
+
+function showPanel(p){
+  const sh = show();
+  /* Everything here is off unless it has been switched on, with one exception: the New
+     badge has been on since before there was a switch for it, so it stays on for anyone
+     who has never been offered one. It is only worth a row when somebody in the class is
+     actually new - a switch for nothing is worse than no switch. */
+  const rows = [['photos','Photographs'],['surnames','Surnames'],
+                ['realname','Their real name, in brackets']];
+  const anyNew = S.students.some(st => st.isNew);
+  // Whether the class was exported with enrolment years at all. Without them nobody can
+  // ever be new, which looks exactly like a missing feature unless it is said out loud.
+  const knowsEnrolment = S.students.some(st => st.enrolled);
+  if (anyNew) rows.push(['newb','The New badge', 1]);
+  rows.push(['labels','Labels']);
+  const nm = sh.names || 'preferred';
+  p.innerHTML = `<h3>Show on the cards</h3>
+    <div class="toggles">
+      ${rows.map(([k,l,dflt]) => {
+        const on = sh[k] === undefined ? !!dflt : !!sh[k];
+        return `<label class="tgl"><input type="checkbox" data-sh="${k}" ${on?'checked':''}> ${l}</label>`;
+      }).join('')}
+    </div>
+    ${anyNew ? '' : `<div class="note" style="margin:6px 0 0">${knowsEnrolment
+      ? 'There is no <b>New badge</b> switch here because nobody in this class started the '
+        + 'school this year. The badge is worked out from your iSAMS export, not set by hand '
+        + '— to mark somebody yourself, give them the <b>New this year</b> label.'
+      : 'There is no <b>New badge</b> switch here because this class was exported from iSAMS '
+        + 'before enrolment years were read, so the app cannot tell who is new. Export the '
+        + 'class again to get it — or give somebody the <b>New this year</b> label instead.'}</div>`}
+    <div style="margin-top:12px">
+      <label style="display:block;font-size:11px;font-weight:800;letter-spacing:.09em;
+        text-transform:uppercase;color:var(--ink-3);margin-bottom:5px">Which name is the big one</label>
+      <select id="whichName" style="width:100%;border:1px solid var(--line);border-radius:9px;
+        padding:8px 10px;font-size:13px;background:var(--card)">
+        <option value="preferred"${nm!=='full'?' selected':''}>Preferred name</option>
+        <option value="full"${nm==='full'?' selected':''}>Real name</option>
+      </select>
+    </div>
+    ${sh.labels ? `<div class="legend">${tags().map(t=>
+      `<span class="lg"><span class="dot" style="background:${esc(t.colour)}"></span>
+       <b>${esc(t.short||t.label)}</b> <i>${esc(t.label)}</i></span>`).join('')}</div>` : ''}
+    <h3 class="mt">Note for this class</h3>
+    <textarea id="cnote" placeholder="Anything you want printed at the top of the sheet.">${esc(cur().note||'')}</textarea>`;
+  p.querySelectorAll('[data-sh]').forEach(el => el.onchange = () => {
+    show()[el.dataset.sh] = el.checked ? 1 : 0; save(); render();
+  });
+  $('whichName').onchange = e => { show().names = e.target.value; save(); render(); };
+  $('cnote').oninput = e => { cur().note = e.target.value; save(); };
+}
+
+function studentPanel(p, st){
+  if (!st) return showPanel(p);
+  const my = marks()[st.id] || [];
+  const apart = pairs().filter(x=>x[0]===st.id||x[1]===st.id).map(x=>x[0]===st.id?x[1]:x[0]);
+  const seated = Object.keys(seats()).find(k=>seats()[k]===st.id);
+  p.innerHTML = `
+    <div class="who3"><img src="${pic(st)}" alt="">
+      <div class="txt"><b>${esc(st.name)}</b><span>${esc([st.legal, st.year, st.form].filter(Boolean).join(' · ') || 'Student')}</span></div></div>
+    <h3>Labels</h3>
+    <div class="tagBtns">${tags().map(t=>{
+      const on = my.includes(t.id);
+      return `<button class="tagBtn${on?' on':''}" data-tag="${esc(t.id)}"
+        style="${on?chipStyle(t.colour):''}" title="${esc(t.label)}">${esc(t.short||t.label)}</button>`;
+    }).join('')}<button class="tagBtn" id="editTags">Edit…</button></div>
+    <h3 class="mt">Note</h3>
+    <textarea id="snote" placeholder="Anything a cover teacher would want to know. Prints on the class list, never on the plan itself.">${esc(notes()[st.id]||'')}</textarea>
+    <h3 class="mt">Keep apart from</h3>
+    ${apart.map(id=>{ const o = byId(id);
+      return `<div class="away"><span>${esc(o?o.name:id)}</span><button data-un="${esc(id)}" title="Remove">✕</button></div>`;
+    }).join('')}
+    <select id="addAway"><option value="">Add someone…</option>${
+      S.students.filter(o=>o.id!==st.id && !apart.includes(o.id))
+        .sort((a,b)=>a.name.localeCompare(b.name))
+        .map(o=>`<option value="${esc(o.id)}">${esc(o.name)}</option>`).join('')}</select>
+    <div class="row">
+      <button class="btn" id="pin" aria-pressed="${!!pins()[st.id]}">${pins()[st.id]?'Unpin':'Pin here'}</button>
+      ${seated?'<button class="btn" id="unseat">Unseat</button>':''}
+      <button class="btn" id="closeSel">Done</button>
+    </div>
+    <div class="note">Pinned students stay put when you shuffle.</div>
+    <div class="row" style="margin-top:10px">
+      <button class="btn" id="setPhoto" style="flex:1">${st.photo ? 'Change photograph…' : 'Add a photograph…'}</button>
+      ${st.photo ? '<button class="btn" id="dropPhoto">Remove</button>' : ''}
+    </div>
+    <button class="btn danger" id="leftSchool" style="width:100%;margin-top:10px">Left the school…</button>
+    <div class="note">Takes them off this class list for good — their card, their photograph,
+      their labels, your notes about them and any keep-apart pair. Unseating only frees the
+      chair; this is for a student who has actually gone.</div>`;
+  p.querySelectorAll('[data-tag]').forEach(b => b.onclick = () => {
+    const list = (marks()[st.id] || []).slice(), i = list.indexOf(b.dataset.tag);
+    if (i < 0) list.push(b.dataset.tag); else list.splice(i,1);
+    if (list.length) marks()[st.id] = list; else delete marks()[st.id];
+    save(); render();
+  });
+  $('editTags').onclick = showTags;
+  $('snote').oninput = e => {
+    const v = e.target.value;
+    if (v.trim()) notes()[st.id] = v; else delete notes()[st.id];
+    save();
+  };
+  p.querySelectorAll('[data-un]').forEach(b => b.onclick = () => {
+    S.plan.pairs = pairs().filter(x => pairKey(x[0],x[1]) !== pairKey(st.id, b.dataset.un));
+    save(); render();
+  });
+  $('addAway').onchange = e => {
+    if (!e.target.value) return;
+    const k = pairKey(st.id, e.target.value);
+    if (!pairs().some(x=>pairKey(x[0],x[1])===k)) pairs().push([st.id, e.target.value]);
+    save(); render();
+  };
+  $('pin').onclick = () => {
+    if (pins()[st.id]) delete pins()[st.id]; else pins()[st.id] = 1;
+    save(); render();
+  };
+  const u = $('unseat'); if (u) u.onclick = () => unseat(seated);
+  $('setPhoto').onclick = () => {
+    const inp = filePicker('image/*,.jpg,.jpeg,.png,.heic');
+    inp.onchange = async () => {
+      const f = inp.files[0]; if (!f) return;
+      flash('Reading ' + f.name + ' …');
+      const r = await sendPhoto(st.id, f);
+      if (r.error) return flash(r.error);
+      S.students = r.students; render();
+      flash('That is ' + st.name + ' now.');
+    };
+    inp.click();
+  };
+  if ($('dropPhoto')) $('dropPhoto').onclick = async () => {
+    const r = await api('/api/photo?class=' + encodeURIComponent(S.active)
+      + '&id=' + encodeURIComponent(st.id) + '&action=clear', {method:'POST'});
+    if (r.error) return flash(r.error);
+    S.students = r.students; render(); flash('Photograph removed.');
+  };
+  $('leftSchool').onclick = async () => {
+    if (!confirm('Take ' + st.name + ' off ' + S.active + ' for good?\n\n'
+        + 'Their photograph, labels, notes and keep-apart pairs go too. The class list as it '
+        + 'was is kept alongside it as students.csv.previous.')) return;
+    const r = await api('/api/roster', {method:'POST', body: JSON.stringify(
+      {class:S.active, action:'remove', id:st.id})});
+    if (r.error) return flash(r.error);
+    rosterChanged(r);
+    flash(st.name + ' is off the class list.');
+  };
+  $('closeSel').onclick = () => { sel = null; render(); };
+}
+
+/* ------------------------------------------------------- the room editor */
+function startDrag(e, id){
+  if (!editing) return;
+  const it = layout().items.find(i=>i.id===id); if (!it) return;
+  e.preventDefault();
+  if (selItem !== id){ selItem = id; render(); }     // select on press, before any dragging
+  const rect = $('room').getBoundingClientRect();
+  const ox = (e.clientX - rect.left)/zoom - it.x, oy = (e.clientY - rect.top)/zoom - it.y;
+  const b0 = bounds(it), padL = it.x - b0.x0, padT = it.y - b0.y0;
+  dragItem = true;
+  const move = ev => {
+    it.x = Math.max(MARGIN + padL, Math.round(((ev.clientX - rect.left)/zoom - ox)/SNAP)*SNAP);
+    it.y = Math.max(MARGIN + padT, Math.round(((ev.clientY - rect.top )/zoom - oy)/SNAP)*SNAP);
+    render();
+  };
+  const up = () => { document.removeEventListener('pointermove', move);
+                     document.removeEventListener('pointerup', up);
+                     dragItem = false; save(); render(); };
+  document.addEventListener('pointermove', move);
+  document.addEventListener('pointerup', up);
+}
+function freeSpot(){                 // new furniture lands below everything, never on top of it
+  const L = layout(); let bottom = MARGIN;
+  for (const it of L.items) bottom = Math.max(bottom, bounds(it).y1);
+  return {x: MARGIN + SEAT_W + PAD, y: bottom + 70};
+}
+function addTable(){
+  const L = layout(), n = L.items.filter(i=>i.type==='table').length + 1, p = freeSpot();
+  L.items.push({id:'t'+Date.now().toString(36), type:'table', x:p.x, y:p.y + SEAT_H + PAD,
+                seats:{top:6,bottom:6,left:0,right:0}, label:'Table '+n});
+  selItem = L.items[L.items.length-1].id; save(); render();
+}
+function addMarker(shape, label, w, h){
+  const L = layout(), p = freeSpot();
+  L.items.push({id:'m'+Date.now().toString(36), type:'marker', shape, label, x:p.x, y:p.y, w, h});
+  selItem = L.items[L.items.length-1].id; save(); render();
+}
+function roomPanel(p){
+  const it = layout().items.find(i=>i.id===selItem);
+  let html = `<h3>Add to the room</h3><div class="row">
+      <button class="btn" id="aTable">Table</button>
+      <button class="btn" id="aTv">TV</button>
+      <button class="btn" id="aBoard">Board</button>
+      <button class="btn" id="aDesk">My desk</button>
+      <button class="btn" id="aDoor">Door</button>
+      <button class="btn" id="aNote">Label</button></div>`;
+  if (it){
+    html += `<h3 class="mt">${it.type==='table'?'This table':'This item'}</h3>
+      <div class="fld" style="margin:0 0 9px"><label>Name</label><input id="iLabel" value="${esc(it.label||'')}"></div>`;
+    if (it.type === 'table'){
+      html += `<div class="grid4">${['top','bottom','left','right'].map(e=>
+        `<div><label>${e} edge</label><input type="number" min="0" max="12" id="s_${e}"
+          value="${(it.seats||{})[e]||0}"></div>`).join('')}</div>
+        <div class="note">Chairs go on the edges you give a number to. Leave an edge at 0 and nobody sits there.</div>`;
+    } else {
+      html += `<div class="grid4">
+        <div><label>width</label><input type="number" min="40" max="800" step="10" id="i_w" value="${it.w}"></div>
+        <div><label>height</label><input type="number" min="30" max="500" step="10" id="i_h" value="${it.h}"></div></div>`;
+    }
+    html += `<div class="row"><button class="btn" id="iDel" style="color:var(--warn)">Remove it</button></div>`;
+  } else {
+    html += `<div class="note">Click a table to change how many chairs it has, or drag it to move it.</div>`;
+  }
+  html += `<h3 class="mt">Send this room to someone</h3>
+    <div class="row"><button class="btn" id="roomLib" style="flex:1 1 100%">Room files — export or import…</button></div>
+    <div class="note">Only for handing a room to another teacher. To use this room in your own
+      classes, just open <b>Rooms</b> — every layout you have is already listed there.</div>`;
+  html += `<div class="note">The room grows and shrinks to fit whatever is in it, so there is no size to set.</div>`;
+  p.innerHTML = html;
+  $('roomLib').onclick = showRooms;
+
+  $('aTable').onclick = addTable;
+  $('aTv').onclick    = () => addMarker('tv','TV',160,72);
+  $('aBoard').onclick = () => addMarker('board','Whiteboard',280,52);
+  $('aDesk').onclick  = () => addMarker('desk','My desk',160,72);
+  $('aDoor').onclick  = () => addMarker('door','Door',96,42);
+  $('aNote').onclick  = () => addMarker('note','Window',140,40);
+  if (it){
+    $('iLabel').oninput = e => { it.label = e.target.value; save();
+      const el = document.querySelector('[data-item="'+CSS.escape(it.id)+'"] .up'); if (el) el.textContent = it.label; };
+    if (it.type === 'table') ['top','bottom','left','right'].forEach(e2 => {
+      $('s_'+e2).oninput = ev => {
+        it.seats = it.seats || {};
+        it.seats[e2] = Math.max(0, Math.min(12, parseInt(ev.target.value||0,10) || 0));
+        pruneSeats(); save(); render();
+      };
+    });
+    else {
+      $('i_w').oninput = e => { it.w = Math.max(40, +e.target.value||it.w); save(); render(); };
+      $('i_h').oninput = e => { it.h = Math.max(30, +e.target.value||it.h); save(); render(); };
+    }
+    $('iDel').onclick = () => {
+      layout().items = layout().items.filter(i=>i.id!==it.id);
+      selItem = null; pruneSeats(); save(); render();
+    };
+  }
+}
+function pruneSeats(){
+  const ok = new Set(allSlots().map(s=>s.id));
+  for (const k in seats()) if (!ok.has(k)) delete seats()[k];
+}
+
+/* --------------------------------------------------------------- modals */
+const openModal = () => $('modal').classList.add('on');
+const shutModal = () => $('modal').classList.remove('on');
+$('mclose').onclick = shutModal;
+$('modal').onclick = e => { if (e.target === $('modal')) shutModal(); };
+addEventListener('keydown', e => {
+  if (e.key === 'Escape'){
+    if ($('modal').classList.contains('on')) shutModal();
+    else if (sel){ sel = null; render(); }
+    return;
+  }
+  const t = e.target.tagName;
+  if (t === 'INPUT' || t === 'TEXTAREA' || t === 'SELECT') return;
+  if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'z'){ e.preventDefault(); undo(); return; }
+  if ((e.key === 'Backspace' || e.key === 'Delete') && sel && sel.seat){ e.preventDefault(); unseat(sel.seat); }
+});
+
+function showTags(){
+  $('mtitle').textContent = 'Labels';
+  $('msub').textContent = 'The short word is what shows on the card. Keep it neutral — '
+    + 'a student reading it over your shoulder should learn nothing about themselves.';
+  const draw = () => {
+    $('mbody').innerHTML = `<div class="thead"><div></div><div>On the card</div><div>What it means to you</div><div></div></div>`
+      + tags().map((t,i)=>`<div class="trow">
+          <input type="color" value="${esc(t.colour)}" data-c="${i}">
+          <input type="text" value="${esc(t.short||'')}" maxlength="6" data-s="${i}">
+          <input type="text" value="${esc(t.label||'')}" data-l="${i}">
+          <button class="del2" data-d="${i}" title="Remove">✕</button></div>`).join('')
+      + `<button class="pbtn ghost2" id="addTag">Add another label</button>
+         ${DEFAULT_TAGS.some(d => !tags().some(t => t.id === d.id))
+           ? `<button class="pbtn ghost2" id="stdTags">Add the standard labels this class is missing</button>` : ''}
+         <div class="note">Removing a label takes it off every student in this class.
+           The three blues are one scale — <b>Lead</b>, <b>Mid</b>, <b>Build</b> — so they read
+           together on a card without saying anything a student would mind seeing.</div>`;
+    $('mbody').querySelectorAll('[data-c]').forEach(el=>el.oninput = e=>{ tags()[+el.dataset.c].colour = e.target.value; save(); render(); });
+    $('mbody').querySelectorAll('[data-s]').forEach(el=>el.oninput = e=>{ tags()[+el.dataset.s].short  = e.target.value; save(); render(); });
+    $('mbody').querySelectorAll('[data-l]').forEach(el=>el.oninput = e=>{ tags()[+el.dataset.l].label  = e.target.value; save(); render(); });
+    $('mbody').querySelectorAll('[data-d]').forEach(el=>el.onclick = ()=>{
+      const t = tags()[+el.dataset.d];
+      if (!confirm('Remove the "'+(t.short||t.label)+'" label from every student?')) return;
+      S.plan.tags = tags().filter((_,i)=>i!==+el.dataset.d);
+      for (const k in marks()){
+        marks()[k] = marks()[k].filter(x=>x!==t.id);
+        if (!marks()[k].length) delete marks()[k];
+      }
+      save(); render(); draw();
+    });
+    $('addTag').onclick = () => {
+      const n = tags().length;
+      tags().push({id:'x'+Date.now().toString(36), short:'New'+(n+1),
+                   label:'', colour:SWATCHES[n % SWATCHES.length]});
+      save(); render(); draw();
+    };
+    const std = $('stdTags');
+    if (std) std.onclick = () => {          // pull in labels added since this class was made
+      const have = new Set(tags().map(t => t.id));
+      DEFAULT_TAGS.forEach((d, i) => {
+        if (have.has(d.id)) return;
+        const at = Math.min(i, tags().length);
+        tags().splice(at, 0, Object.assign({}, d));
+      });
+      save(); render(); draw();
+    };
+  };
+  draw(); openModal();
+}
+
+function showClasses(){
+  $('mtitle').textContent = 'Classes';
+  $('msub').textContent = 'Each class keeps its own room, its own labels and its own plans.';
+  $('mbody').innerHTML = (S.classes.map(c => `<div class="crow${c.name===S.active?' cur':''}">
+      <div class="txt" data-c="${esc(c.name)}" style="flex:1;cursor:pointer">
+        <input class="pname" data-ren="${esc(c.name)}" value="${esc(c.name)}"
+          title="Click to rename this class" aria-label="Class name">
+        <span>${c.students} students · ${c.seats} chairs · ${c.seated} seated${
+          c.plans > 1 ? ' · ' + c.plans + ' plans' : ''}</span></div>
+      ${c.name===S.active?'<span class="now">Open</span>':''}
+      <button class="del" data-exp="${esc(c.name)}">Export</button>
+      <button class="del" data-del="${esc(c.name)}">Remove</button>
+    </div>`).join('') || '<div class="note">No classes yet.</div>')
+    + `<div class="note" style="margin:2px 0 10px">Click a class to open it, or click its
+         name to rename it. Adding a student is done inside the class, next to
+         <b>Edit the room</b>.</div>
+       <button class="pbtn" id="addC">Add a class from iSAMS…</button>
+       <button class="pbtn ghost2" id="updC">Update a class with new students…</button>
+       <button class="pbtn ghost2" id="impC">Import a class file someone sent you</button>
+       <div class="note">Students joined a class you already have? <b>Update</b> it rather than
+         adding it again — export the whole class out of iSAMS as before and only the new names
+         are taken, photographs and all. Everybody else keeps their chair.</div>
+       <div class="note">An exported class is one file holding everything about it — students,
+         photographs, every plan, your labels, your notes and your keep-apart pairs. Treat it the
+         way you would treat a printed mark book.</div>
+       <div class="log" id="clog" style="display:none"></div>`;
+
+  const open = async name => {
+    const r = await api('/api/switch',{method:'POST',body:JSON.stringify({name})});
+    if (r.ok) location.reload();
+  };
+  $('mbody').querySelectorAll('[data-c]').forEach(el => el.onclick = e => {
+    if (e.target.tagName === 'INPUT') return;      // that is the name, being edited
+    el.dataset.c === S.active ? shutModal() : open(el.dataset.c);
+  });
+  $('mbody').querySelectorAll('[data-ren]').forEach(el => {
+    el.onclick = e => e.stopPropagation();
+    el.onkeydown = e => {
+      if (e.key === 'Enter') el.blur();
+      // Escape means "forget it", not "shut the whole dialog" - which is what the
+      // window-wide Escape would otherwise do on its way past.
+      if (e.key === 'Escape'){ e.stopPropagation(); el.value = el.dataset.ren; el.blur(); }
+    };
+    el.onchange = async () => {
+      const was = el.dataset.ren, want = el.value.trim();
+      if (!want || want === was){ el.value = was; return; }
+      await flushSave();
+      const r = await api('/api/rename', {method:'POST',
+                          body: JSON.stringify({name: was, to: want})});
+      if (r.error){ el.value = was; return flash(r.error); }
+      const now = r.name || want;
+      // A printout remembers the classes it covers by name. The helper has just mended
+      // the copies on disk; this window is holding one of its own.
+      const ps = S.plan && S.plan.print;
+      if (ps && Array.isArray(ps.classes))
+        ps.classes = ps.classes.map(x => x === was ? now : x);
+      S.classes = r.classes; S.active = r.active;
+      paintSub(); showClasses();
+      flash(was === now ? 'Renamed.' : '"' + was + '" is now "' + now + '".');
+    };
+  });
+  $('mbody').querySelectorAll('[data-exp]').forEach(b => b.onclick = () => {
+    const a = document.createElement('a');
+    a.href = '/api/export?class=' + encodeURIComponent(b.dataset.exp) + '&t=' + encodeURIComponent(TOKEN);
+    a.download = b.dataset.exp.replace(/[^A-Za-z0-9 ._-]/g,'_') + '.seatingclass';
+    document.body.appendChild(a); a.click(); a.remove();
+  });
+  $('mbody').querySelectorAll('[data-del]').forEach(b => b.onclick = async ev => {
+    ev.stopPropagation();
+    if (!confirm('Remove "'+b.dataset.del+'"? Its students, photos and every seating plan go with it.')) return;
+    const r = await api('/api/delete',{method:'POST',body:JSON.stringify({name:b.dataset.del})});
+    if (r.ok) location.reload();
+  });
+  $('addC').onclick = showImport;
+  $('updC').onclick = () => showUpdate();
+  $('impC').onclick = () => {
+    const inp = filePicker('.seatingclass,.zip');
+    inp.onchange = async () => {
+      const f = inp.files[0]; if (!f) return;
+      const log = $('clog'); log.style.display = ''; log.textContent = 'Unpacking ' + f.name + ' …';
+      let r; try {
+        r = await fetch('/api/importclass?t=' + encodeURIComponent(TOKEN), {method:'POST', body:f})
+              .then(x => x.json());
+      } catch(e){ r = {error:String(e)}; }
+      if (r && r.ok){
+        const m = r.manifest || {};
+        log.textContent = 'Added "' + r.active + '" — ' + (m.students||0) + ' students, '
+          + (m.photos||0) + ' photographs, ' + (m.plans||1) + ' plan'
+          + (((m.plans||1) === 1) ? '' : 's') + '.';
+        setTimeout(() => location.reload(), 1200);
+      } else {
+        log.textContent = (r && r.error) || 'That file could not be read.';
+      }
+    };
+    inp.click();
+  };
+  openModal();
+}
+
+/* ------------------------------------------------------- the room library */
+/* A file picker that actually lives in the page. A detached input can be clicked but
+   cannot be found, driven or reused, and some browsers drop it before it fires. */
+function filePicker(accept){
+  document.querySelectorAll('input.picker').forEach(e => e.remove());
+  const inp = document.createElement('input');
+  inp.type = 'file'; inp.accept = accept; inp.className = 'picker';
+  inp.style.cssText = 'position:fixed;left:-9999px;width:1px;height:1px;opacity:0';
+  document.body.appendChild(inp);
+  return inp;
+}
+function download(filename, text, mime){
+  const url = URL.createObjectURL(new Blob([text], {type: mime || 'application/json'}));
+  const a = document.createElement('a');
+  a.href = url; a.download = filename; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 5000);
+}
+const roomFileName = n => (String(n||'Room').replace(/[^A-Za-z0-9 ._-]/g,'_')) + '.seatingroom';
+
+async function saveRoom(name){
+  const r = await api('/api/rooms', {method:'POST', body: JSON.stringify(
+    {action:'save', name, layout: layout()})});
+  if (r.rooms) S.rooms = r.rooms;
+  return r;
+}
+
+function showRooms(){
+  $('mtitle').textContent = 'Room files';
+  $('msub').textContent = 'For sending a room to another teacher, or taking one they sent you. '
+    + 'To reuse a room in your own classes you do not need any of this — it is all under Rooms. '
+    + 'A room file holds furniture and chairs only, never a student.';
+  const draw = () => {
+    const list = S.rooms || [];
+    $('mbody').innerHTML = `
+      <div class="steps" style="margin-bottom:14px"><b>Save the room you are looking at</b>
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <input id="rname" placeholder="e.g. Lab 3, or Exam layout"
+            style="flex:1;border:1px solid var(--line);border-radius:9px;padding:9px 11px;font-size:14px">
+          <button class="btn" id="rsave" style="padding:9px 16px">Save</button></div>
+        <div class="note" id="rmsg" style="margin-top:6px">${
+          countSeatsIn(layout())} chairs in the room on screen now.</div></div>
+      ${list.length ? list.map(r => `<div class="crow">
+          <div class="txt" data-use="${esc(r.name)}" style="flex:1;cursor:pointer">
+            <input class="pname" data-rn="${esc(r.name)}" value="${esc(r.name)}">
+            <span>${countSeatsIn(r.layout)} chairs · ${(r.layout&&r.layout.items||[]).length} pieces</span></div>
+          <button class="del" data-use2="${esc(r.name)}">Use it</button>
+          <button class="del" data-rex="${esc(r.name)}">Export</button>
+          <button class="del" data-rdel="${esc(r.name)}">Remove</button>
+        </div>`).join('') : '<div class="note">No rooms saved yet.</div>'}
+      <button class="pbtn ghost2" id="rimp">Import a room file someone sent you</button>
+      <div class="note">Using a room replaces the furniture in <b>this plan only</b>. Anyone already
+        in a chair that still exists stays where they are.</div>`;
+
+    $('rsave').onclick = async () => {
+      const n = $('rname').value.trim();
+      if (!n){ $('rname').focus(); return; }
+      const r = await saveRoom(n);
+      if (r.error){ $('rmsg').textContent = r.error; return; }
+      draw();
+    };
+    $('rname').onkeydown = e => { if (e.key === 'Enter') $('rsave').click(); };
+
+    const use = name => {
+      const r = (S.rooms||[]).find(x => x.name === name); if (!r) return;
+      snapshot();
+      cur().layout = JSON.parse(JSON.stringify(r.layout));
+      pruneSeats(); selItem = null; save(); render(); shutModal();
+      flash('Room "' + name + '" is now the layout for ' + cur().name + '.');
+    };
+    $('mbody').querySelectorAll('[data-use]').forEach(el => el.onclick = e => {
+      if (e.target.tagName !== 'INPUT') use(el.dataset.use); });
+    $('mbody').querySelectorAll('[data-use2]').forEach(b => b.onclick = () => use(b.dataset.use2));
+    $('mbody').querySelectorAll('[data-rn]').forEach(el => {
+      el.onclick = e => e.stopPropagation();
+      el.onchange = async () => {
+        const old = el.dataset.rn, to = el.value.trim();
+        const r = await api('/api/rooms', {method:'POST', body: JSON.stringify(
+          {action:'rename', name: old, to})});
+        if (r.rooms){ S.rooms = r.rooms; draw(); }
+      };
+    });
+    $('mbody').querySelectorAll('[data-rex]').forEach(b => b.onclick = () => {
+      const r = (S.rooms||[]).find(x => x.name === b.dataset.rex); if (!r) return;
+      download(roomFileName(r.name), JSON.stringify(
+        {app:'seating-plan-room', version:1, name:r.name, layout:r.layout}, null, 1));
+    });
+    $('mbody').querySelectorAll('[data-rdel]').forEach(b => b.onclick = async () => {
+      if (!confirm('Remove the saved room "' + b.dataset.rdel + '"? Any plan already using it keeps it.')) return;
+      const r = await api('/api/rooms', {method:'POST', body: JSON.stringify(
+        {action:'delete', name: b.dataset.rdel})});
+      if (r.rooms){ S.rooms = r.rooms; draw(); }
+    });
+    $('rimp').onclick = () => {
+      const inp = filePicker('.seatingroom,.json');
+      inp.onchange = () => {
+        const f = inp.files[0]; if (!f) return;
+        const rd = new FileReader();
+        rd.onload = async () => {
+          let d; try { d = JSON.parse(rd.result); } catch(e){ d = null; }
+          if (!d || d.app !== 'seating-plan-room' || !d.layout || !(d.layout.items||[]).length){
+            alert('That is not a seating plan room file.'); return;
+          }
+          const r = await saveRoom(String(d.name || f.name).replace(/\.seatingroom$/,''));
+          if (r.rooms) draw();
+        };
+        rd.readAsText(f);
+      };
+      inp.click();
+    };
+  };
+  draw(); openModal();
+}
+
+function showPlans(){
+  $('mtitle').textContent = 'Room layouts';
+  $('msub').textContent = 'Every room you have set up, in ' + S.active + ' and in your other classes. '
+    + 'Rename one and it is called that everywhere. Using one takes a click.';
+  const draw = () => {
+    const list = plans();
+    $('mbody').innerHTML = list.map(p => {
+      const n = countSeatsIn(p.layout), s = Object.values(p.seats||{}).filter(Boolean).length;
+      return `<div class="crow${p.id===S.plan.current?' cur':''}">
+        <div class="txt" data-open="${esc(p.id)}" style="cursor:pointer">
+          <input class="pname" data-name="${esc(p.id)}" value="${esc(p.name)}">
+          <span>${n} chairs · ${s} seated</span></div>
+        <button class="del" data-dup="${esc(p.id)}" title="Make a copy">Duplicate</button>
+        ${p.id===S.plan.current ? '<span class="now">Open</span>'
+          : `<button class="del" data-go="${esc(p.id)}">Open</button>`}
+        ${list.length>1 ? `<button class="del" data-del2="${esc(p.id)}">Remove</button>` : ''}
+      </div>`;
+    }).join('')
+      + elsewhereHTML()
+      + `<button class="pbtn" id="addP">Add another layout</button>
+         <div class="note">Starts with a copy of the room you are looking at, and nobody seated.</div>`;
+
+    $('mbody').querySelectorAll('[data-name]').forEach(el => {
+      el.onclick = e => e.stopPropagation();
+      el.oninput = () => { plans().find(p=>p.id===el.dataset.name).name = el.value; save(); paintSub(); };
+    });
+    const open = id => { S.plan.current = id; sel = null; selItem = null; undoStack = [];
+                         $('undo').disabled = true; save(); paintSub(); render(); shutModal(); };
+    $('mbody').querySelectorAll('[data-go]').forEach(b => b.onclick = () => open(b.dataset.go));
+    $('mbody').querySelectorAll('[data-open]').forEach(el => el.onclick = e => {
+      if (e.target.tagName !== 'INPUT') open(el.dataset.open); });
+    $('mbody').querySelectorAll('[data-dup]').forEach(b => b.onclick = () => {
+      const p = plans().find(x=>x.id===b.dataset.dup);
+      plans().push({id:'p'+Date.now().toString(36), name:uniquePlanName(p.name+' copy'),
+                    layout:JSON.parse(JSON.stringify(p.layout||null)),
+                    seats:Object.assign({}, p.seats), note:p.note||''});
+      save(); draw();
+    });
+    $('mbody').querySelectorAll('[data-del2]').forEach(b => b.onclick = () => {
+      const p = plans().find(x=>x.id===b.dataset.del2);
+      if (!confirm('Remove the "'+p.name+'" layout? Its room and seating go with it. '
+                 + 'The students, their labels and their keep-apart pairs stay.')) return;
+      S.plan.plans = plans().filter(x=>x.id!==p.id);
+      if (S.plan.current === p.id) S.plan.current = S.plan.plans[0].id;
+      sel = null; selItem = null; save(); paintSub(); render(); draw();
+    });
+    $('addP').onclick = () => {
+      const c = cur();
+      addPlan('Layout ' + (plans().length + 1), c && c.layout);
+      draw();
+    };
+    // one click, straight from the same list - no picker, no saving step
+    $('mbody').querySelectorAll('[data-elsewhere]').forEach(b => b.onclick = () => {
+      const l = elsewhere()[+b.dataset.elsewhere];
+      const p = addPlan(l.name, l.layout);
+      shutModal();
+      flash('"' + p.name + '" is now a plan in ' + S.active + ' — nobody seated yet.');
+    });
+  };
+  draw(); openModal();
+}
+
+/* Every plan in every other class, so a layout you drew once is here the moment it
+   exists. Nothing has to be "saved" first, and the seating never travels: only the
+   tables and chairs are copied. */
+function elsewhere(){
+  const out = [];
+  (S.classes || []).forEach(c => {
+    if (c.name === S.active) return;
+    (c.layouts || []).forEach(l => {
+      if (l.layout) out.push({cls: c.name, name: l.plan, seats: l.seats, layout: l.layout});
+    });
+  });
+  return out;
+}
+function elsewhereHTML(){
+  const list = elsewhere();
+  if (!list.length) return '';
+  return `<h3 class="mt">In your other classes</h3>`
+    + list.map((l,i) => `<div class="crow">
+        <div class="txt"><b>${esc(l.name)}</b><span>${esc(l.cls)} · ${l.seats} chairs</span></div>
+        <button class="del" data-elsewhere="${i}">Use here</button></div>`).join('')
+    + `<div class="note">Brings the tables and chairs into ${esc(S.active)} with nobody seated.
+        The other class keeps its own layout exactly as it is.</div>`;
+}
+const countSeatsIn = L => !L ? 0 : (L.items||[]).filter(i=>i.type==='table')
+  .reduce((n,it)=> n + ['top','bottom','left','right']
+    .reduce((m,e)=> m + (parseInt((it.seats||{})[e],10)||0), 0), 0);
+
+function uniquePlanName(base){
+  base = String(base || 'Plan').trim() || 'Plan';
+  const taken = new Set(plans().map(p => p.name));
+  if (!taken.has(base)) return base;
+  let i = 2; while (taken.has(base + ' (' + i + ')')) i++;
+  return base + ' (' + i + ')';
+}
+function addPlan(name, layout){
+  const p = {id:'p' + Date.now().toString(36), name: uniquePlanName(name),
+             layout: layout ? JSON.parse(JSON.stringify(layout)) : null,
+             seats:{}, note:''};
+  plans().push(p);
+  S.plan.current = p.id;
+  sel = null; selItem = null; undoStack = [];
+  const u = $('undo'); if (u) u.disabled = true;
+  save(); paintSub(); render();
+  return p;
+}
+
+function paintSub(){
+  const many = plans().length > 1;
+  $('sub').textContent = S.active + (many ? ' · ' + cur().name : '')
+    + ' · ' + S.students.length + ' students';
+  $('planBtn').textContent = many ? cur().name : 'Rooms';
+}
+
+/* --------------------------------------------------------------- import */
+let up = {report:null, badges:null, extra:null}, busy = 0;
+/* Whether the three drop boxes are building a new class or bringing an existing one up
+   to date. Everything about reading the spreadsheets is the same either way; only the
+   wording, and what is done with them at the end, differ. */
+let upMode = 'new';
+function syncGo(){
+  const g = $('go'); if (!g) return;
+  const roster = up.report || up.extra;                 // either list file can be the roster
+  g.disabled = busy > 0 || !roster;
+  g.textContent = busy > 0 ? 'Reading…' : (upMode === 'update' ? 'Update the class list' : 'Add this class');
+  const c = $('cover'); if (!c) return;
+  const line = (ok, txt) => `<div class="ck${ok?' on':''}"><span>${ok?'✓':'–'}</span>${txt}</div>`;
+  if (upMode === 'update'){
+    c.innerHTML = !roster
+      ? `<div class="hint">Export the class out of iSAMS again — the same files as the first
+         time, the whole class, not only the new students. Only the ones missing from this
+         app will be added.</div>`
+      : line(true, 'Names and dates of birth')
+      + line(!!up.badges, up.badges ? 'Photographs for whoever is new'
+          : 'Photographs — without the <b>Student ID Badge</b> file a new student arrives with '
+          + 'no face, which is the one thing this is meant to save you')
+      + line(!!up.extra, up.extra ? 'Preferred names'
+          : 'Preferred names — only the <b>Export Wizard</b> file has these')
+      + line(!!up.report, up.report ? 'Year group and form'
+          : 'Year group and form — the <b>Students Simple Report</b> adds these');
+    return;
+  }
+  c.innerHTML = !roster
+    ? `<div class="hint">Drop in <b>either</b> the Students Simple Report <b>or</b> the Export Wizard
+       file — one of them on its own is enough to make a class. Both is better.</div>`
+    : line(true,  'Names and dates of birth')
+    + line(!!up.badges, up.badges ? 'Photographs'
+        : 'Photographs — the <b>Student ID Badge</b> file has these')
+    + line(!!up.extra,  up.extra  ? 'Preferred names'
+        : 'Preferred names — only the <b>Export Wizard</b> file has these')
+    + line(!!up.report, up.report ? 'Year group and form'
+        : 'Year group and form — the <b>Students Simple Report</b> adds these. Nothing on the '
+        + 'plan needs them; they show in the sidebar and in one column of the printed list.');
+}
+
+/* One student's photograph. The picture is sent as it is and the helper makes it the size
+   the rest of them are, so one card cannot carry a portrait ten times the weight of its
+   neighbours. */
+async function sendPhoto(id, file){
+  const q = '?class=' + encodeURIComponent(S.active) + '&id=' + encodeURIComponent(id)
+          + '&name=' + encodeURIComponent(file.name) + '&t=' + encodeURIComponent(TOKEN);
+  try {
+    return await fetch('/api/photo' + q, {method:'POST', body:file}).then(r => r.json());
+  } catch(e){ return {error:String(e)}; }
+}
+
+/* Whoever is now in the class, after somebody has joined it or left it.
+
+   The undo history goes with them. It is a record of where people sat in a class that no
+   longer exists, and replaying it after a student has left puts that student back in a
+   chair - a chair then held by somebody who is not on the roll, drawn as empty, with the
+   count at the top disagreeing with the list on the right. */
+function rosterChanged(r){
+  S.students = r.students; S.classes = r.classes;
+  sel = null; selItem = null;
+  undoStack.length = 0;
+  const u = $('undo'); if (u) u.disabled = true;
+  if (forgetLeavers()) save();
+  paintSub(); render();
+}
+
+/* One student, typed in. For somebody who arrives after the class was exported from
+   iSAMS - the alternative being to export the whole class again for the sake of one name.
+   They come in without a photograph, which is the one thing that cannot be typed; the
+   card falls back to the same outline it uses for anyone iSAMS had no picture of. */
+function showAddStudent(){
+  $('mtitle').textContent = 'Add a student';
+  $('msub').textContent = 'To ' + S.active + '. A surname and a first name are all that is needed.';
+  const fld = (id, label, note) => `<div class="fld"><label>${label}</label>
+    <input id="${id}" autocomplete="off">${note?`<div class="note" style="margin-top:4px">${note}</div>`:''}</div>`;
+  $('mbody').innerHTML = fld('nsur','Surname')
+    + fld('nfore','Real first name', 'As it appears on the register.')
+    + fld('npref','Preferred name', 'Only if it differs from the one above.')
+    + `<div class="grid4" style="gap:12px">
+         <div class="fld" style="margin:0"><label>Year group</label><input id="nyear" autocomplete="off"></div>
+         <div class="fld" style="margin:0"><label>Form</label><input id="nform" autocomplete="off"></div>
+       </div>
+       <div class="grid4" style="gap:12px;margin-top:13px">
+         <div class="fld" style="margin:0"><label>Birthday</label>
+           <div style="display:flex;gap:6px">
+             <input id="nday" placeholder="day" style="width:100%" autocomplete="off">
+             <input id="nmon" placeholder="month" style="width:100%" autocomplete="off"></div></div>
+         <div class="fld" style="margin:0"><label>Boy or girl</label>
+           <select id="ngen"><option value="">Not saying</option>
+             <option value="M">Boy</option><option value="F">Girl</option></select></div>
+       </div>
+       <div class="note">The birthday is only used to tell two students of the same name apart.
+         Boy or girl is only used by <b>Alternate</b>.</div>
+       <div class="fld"><label>Photograph</label>
+         <div style="display:flex;gap:8px;align-items:center">
+           <button class="btn" id="npick">Choose a picture…</button>
+           <span class="note" id="nphotoName" style="margin:0;flex:1;min-width:0;overflow:hidden;
+             text-overflow:ellipsis;white-space:nowrap"></span></div>
+         <div class="note" style="margin-top:4px">Optional, and you can add one later from the
+           student's own panel.</div></div>
+       <button class="pbtn" id="nadd" style="margin-top:14px">Add to the class</button>
+       <div class="note" style="margin-top:12px">More than one of them, or you would rather not
+         go and fetch the photograph? <b>Update the class from iSAMS</b> instead — export the
+         whole class again and only the names this app has not got are taken, faces and all.</div>
+       <button class="pbtn ghost2" id="nbulk">Update the class from iSAMS…</button>
+       <button class="pbtn ghost2" id="nback">Back</button>`;
+  // A picture cannot be typed, so it is the one thing offered as a file. It is optional:
+  // without one the card falls back to the outline used for anyone iSAMS had no photo of.
+  let chosen = null;
+  const paint = () => { $('nphotoName').textContent = chosen ? chosen.name : 'No photograph'; };
+  $('npick').onclick = () => {
+    const inp = filePicker('image/*,.jpg,.jpeg,.png,.heic');
+    inp.onchange = () => { chosen = inp.files[0] || null; paint(); };
+    inp.click();
+  };
+  paint();
+  $('nback').onclick = showClasses;
+  $('nbulk').onclick = () => showUpdate(S.active);
+  $('nadd').onclick = async () => {
+    const v = id => ($(id).value || '').trim();
+    if (!v('nsur') || !v('nfore')){
+      flash('A surname and a first name are needed.');
+      (!v('nsur') ? $('nsur') : $('nfore')).focus(); return;
+    }
+    const r = await api('/api/roster', {method:'POST', body: JSON.stringify({
+      class:S.active, action:'add', student:{
+        surname:v('nsur'), forename:v('nfore'), preferred_name:v('npref'),
+        year_group:v('nyear'), form:v('nform'),
+        day:v('nday'), month:v('nmon'), gender:$('ngen').value}})});
+    if (r.error) return flash(r.error);
+    if (chosen){
+      const who = (r.students || []).find(s => s.surname === v('nsur')
+                    && s.forename === v('nfore'));
+      if (who) { const up = await sendPhoto(who.id, chosen); if (up.students) r.students = up.students; }
+    }
+    shutModal(); rosterChanged(r);
+    flash((v('npref') || v('nfore')) + ' ' + v('nsur') + ' is on the class list — drag them to a chair.');
+  };
+  openModal();
+}
+
+function showImport(){
+  up = {report:null, badges:null, extra:null}; upMode = 'new';
+  $('mtitle').textContent = 'Add a class';
+  $('msub').textContent = 'The first two are all a seating plan needs. Nothing leaves this Mac.';
+  $('mbody').innerHTML = `
+    <div class="steps"><b>In iSAMS, first — the same for all three</b>
+      <code>Student Manager</code> → tick the class → <code>Search</code> → select all the student
+      names → <code>Selected Students</code> → <code>Exporting and Reports</code>
+      <div style="margin-top:8px">Whenever iSAMS offers you a format, pick <b>Excel</b>.</div></div>
+    <div class="drop" id="d3"><b>Export Wizard file</b>
+      <span>Names, preferred names, dates of birth and gender.<br>
+      <i>Export Wizard → create a new export → select all the fields</i></span></div>
+    <div class="drop" id="d2"><b>Student ID Badge</b>
+      <span>The photographs — the whole point of a seating plan, really.<br><i>Custom Reports → Student ID Badge</i></span></div>
+    <div class="drop" id="d1"><b>Students Simple Report <i style="font-weight:400">— you can skip this one</i></b>
+      <span>Adds year group and form. Nothing else here uses it.<br><i>Students Simple Report → tick every field</i></span></div>
+    <div class="cover" id="cover"></div>
+    <div class="fld"><label>Name this class</label><input id="cname" placeholder="e.g. 10B Biology"></div>
+    <button class="pbtn" id="go" disabled>Add this class</button>
+    <button class="pbtn ghost2" id="back">Back</button>
+    <div class="note">Export one class at a time — a seating plan is per class, not per year group.</div>
+    <div class="log" id="ilog" style="display:none"></div>`;
+  $('back').onclick = showClasses;
+  wireDrop('d1','report'); wireDrop('d2','badges'); wireDrop('d3','extra');
+  $('go').onclick = runImport;
+  syncGo();
+  openModal();
+}
+function wireDrop(id, kind){
+  const el = $(id), inp = document.createElement('input');
+  // Extensions alone make some file choosers grey out a perfectly good spreadsheet -
+  // notably one iSAMS has named "export (1).xlsx" - so name the types as well.
+  inp.type='file';
+  inp.accept='.xlsx,.xls,.xlsm,application/vnd.ms-excel,'
+           + 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,'
+           + 'application/vnd.ms-excel.sheet.macroEnabled.12';
+  inp.style.display='none'; el.appendChild(inp);
+  el.onclick = () => inp.click();
+  inp.onchange = () => inp.files[0] && send(inp.files[0]);
+  el.ondragover = e => { e.preventDefault(); el.classList.add('over'); };
+  el.ondragleave = () => el.classList.remove('over');
+  el.ondrop = e => {
+    e.preventDefault(); e.stopPropagation(); el.classList.remove('over');
+    const dt = e.dataTransfer;
+    /* Dragging straight out of the Downloads stack or a browser's download bar hands over
+       a promise rather than the file itself. Ask the other way; and when even that comes
+       back empty, macOS has still said *where* the file is, which is all the helper needs
+       - it is on this Mac and can simply open it. That is what makes dropping work from
+       anywhere rather than only out of a Finder window. */
+    let f = dt.files && dt.files[0];
+    if (!f && dt.items) for (const it of dt.items){
+      if (it.kind === 'file'){ f = it.getAsFile(); if (f) break; }
+    }
+    if (f) return send(f);
+    let where = '';
+    for (const type of ['text/uri-list', 'public.file-url', 'text/plain', 'URL']){
+      try { where = (dt.getData(type) || '').trim(); } catch (err) { where = ''; }
+      if (/^file:\/\//i.test(where) || where.startsWith('/')) break;
+      where = '';
+    }
+    if (where) return sendPath(where);
+    el.querySelector('span').innerHTML = 'macOS did not say what was dropped. '
+      + '<b>Click this box</b> and choose the file instead.';
+  };
+  // The same file, named by where it is rather than handed over as bytes.
+  function sendPath(where){
+    const name = decodeURIComponent(where.split('/').pop() || 'file');
+    return send({name, __path: where});
+  }
+
+  async function send(file){
+    el.classList.remove('done');
+    const note = el.querySelector('span'); note.textContent = 'Reading ' + file.name + ' …';
+    busy++; syncGo();
+    let r; try {
+      r = file.__path
+        ? await api('/api/uploadpath', {method:'POST', wait:120000,
+              body: JSON.stringify({kind, path: file.__path})})
+        : await fetch('/api/upload?kind='+kind+'&name='+encodeURIComponent(file.name)+'&t='+encodeURIComponent(TOKEN),
+                      {method:'POST', body:file}).then(x=>x.json());
+    } catch(e){ r = {error:String(e)}; }
+    busy--;
+    // Say what actually went wrong. "Could not read that file" sent people hunting for a
+    // problem with the file name when the reason was usually inside the spreadsheet.
+    if (!r || !r.ok){
+      note.textContent = 'Could not read ' + file.name + '.'
+                       + ((r && r.error) ? ' ' + r.error : '');
+      up[kind]=null; syncGo(); return;
+    }
+    if (kind !== 'badges' && (r.warning || r.students === undefined)){
+      const why = (r.warning || '').trim();
+      note.innerHTML = 'That spreadsheet has no Surname / Forename / Date of Birth columns.'
+        + (why ? '<br><i style="font-size:11px">' + esc(why.split('\n').pop().slice(0,160)) + '</i>' : '');
+      up[kind] = null; syncGo(); return;
+    }
+    up[kind] = r.path; el.classList.add('done');
+    note.textContent = file.name + (r.students !== undefined ? ' · ' + r.students + ' students' : '')
+      + ' · ' + (r.bytes > 900000 ? (r.bytes/1048576).toFixed(1)+' MB' : Math.round(r.bytes/1024)+' KB');
+    syncGo();
+  }
+}
+async function runImport(){
+  const name = $('cname').value.trim();
+  if (!name){ $('cname').focus(); return; }
+  const log = $('ilog'); $('go').disabled = true; $('go').textContent='Adding…';
+  log.style.display=''; log.textContent='Reading the files and cutting out the photographs…';
+  // whichever list file arrived is the roster; the other one, if any, fills in the gaps
+  const roster = up.report || up.extra;
+  const extras = [up.report && up.extra ? up.extra : null].filter(Boolean);
+  let r; try {
+    r = await api('/api/import',{method:'POST',body:JSON.stringify(
+      {name, report:roster, badges:up.badges, extras})});
+  } catch(e){ r={error:String(e)}; }
+  if (r && r.ok){ log.textContent = r.log.trim(); setTimeout(()=>location.reload(), 1000); }
+  else { log.textContent = (r && (r.error||'')) + '\n' + ((r && r.log)||''); $('go').disabled=false; $('go').textContent='Try again'; }
+}
+
+/* The same three spreadsheets, against a class that already exists.
+
+   Somebody joining a class in week three is the ordinary case, and the app's answer used
+   to be to type them in - which does for a name and a birthday but not for a photograph,
+   the one thing that cannot be typed. Importing the class again from iSAMS would fix the
+   photograph and cost everything else: it is the same twenty-one students, and every
+   chair, every label and every keep-apart pair would have to be set out a second time.
+   So: export the whole class again, and take only the difference. */
+function showUpdate(cls){
+  up = {report:null, badges:null, extra:null}; upMode = 'update';
+  const target = cls || S.active;
+  $('mtitle').textContent = 'Update a class list';
+  $('msub').textContent = 'Adds whoever is new, with their photograph. Nobody already in the room moves.';
+  $('mbody').innerHTML = `
+    <div class="fld"><label>Which class</label>
+      <select id="ucls">${S.classes.map(c => `<option value="${esc(c.name)}"${
+        c.name === target ? ' selected' : ''}>${esc(c.name)} — ${c.students} students</option>`
+        ).join('')}</select></div>
+    <div class="steps"><b>In iSAMS, exactly as you did the first time</b>
+      <code>Student Manager</code> → tick the class → <code>Search</code> → select all the student
+      names → <code>Selected Students</code> → <code>Exporting and Reports</code>
+      <div style="margin-top:8px">Export the <b>whole</b> class again, not only the new students.
+      The app works out for itself who is already here.</div></div>
+    <div class="drop" id="d3"><b>Export Wizard file</b>
+      <span>Names, preferred names, dates of birth and gender.</span></div>
+    <div class="drop" id="d2"><b>Student ID Badge</b>
+      <span>The photographs — the reason for doing this rather than typing the name in.</span></div>
+    <div class="drop" id="d1"><b>Students Simple Report <i style="font-weight:400">— you can skip this one</i></b>
+      <span>Adds year group and form.</span></div>
+    <div class="cover" id="cover"></div>
+    <button class="pbtn" id="go" disabled>Update the class list</button>
+    <button class="pbtn ghost2" id="back">Back</button>
+    <div class="note">An update never removes anybody and never moves anybody. Someone who has
+      gone from the export is named in the summary and left exactly where they are, for you to
+      take off the list yourself if they really have left.</div>
+    <div class="log" id="ilog" style="display:none"></div>`;
+  $('back').onclick = showClasses;
+  wireDrop('d1','report'); wireDrop('d2','badges'); wireDrop('d3','extra');
+  $('go').onclick = runUpdate;
+  syncGo();
+  openModal();
+}
+
+async function runUpdate(){
+  const name = $('ucls').value;
+  const log = $('ilog');
+  $('go').disabled = true; $('go').textContent = 'Updating…';
+  log.style.display = ''; log.textContent = 'Reading the files and looking for new students…';
+  const roster = up.report || up.extra;
+  const extras = [up.report && up.extra ? up.extra : null].filter(Boolean);
+  let r; try {
+    r = await api('/api/updateclass', {method:'POST', wait:900000, body: JSON.stringify(
+      {class:name, report:roster, badges:up.badges, extras})});
+  } catch(e){ r = {error:String(e)}; }
+  if (!r || !r.ok){
+    log.textContent = ((r && r.error) || 'That did not work.') + '\n' + ((r && r.log) || '');
+    $('go').disabled = false; $('go').textContent = 'Try again';
+    return;
+  }
+  // Put the new students on the roll before the summary is read, so that shutting the
+  // dialog any way at all - the button, Escape, the backdrop - leaves the same result.
+  if (name === S.active) rosterChanged(r);
+  else { S.classes = r.classes; paintSub(); }
+  showUpdateResult(name, r);
+}
+
+function showUpdateResult(name, r){
+  const rep = r.report || {}, n = a => (a || []).length;
+  const many = (a, one, more) => n(a) === 1 ? one : more;
+  $('mtitle').textContent = 'Class updated';
+  $('msub').textContent = name + ' — ' + (rep.total || 0) + ' students on the list.';
+  let html = n(rep.added)
+    ? `<div class="steps"><b>${n(rep.added)} ${many(rep.added,'student','students')} added</b>
+        <ul style="margin:8px 0 0 18px;padding:0">${
+          rep.added.map(x => `<li>${esc(x)}</li>`).join('')}</ul>
+        <div style="margin-top:8px">${many(rep.added,'They are','They are')} on the list on the
+        right with no chair yet — drag ${many(rep.added,'them','them')} wherever you want
+        ${many(rep.added,'them','them')}.</div></div>`
+    : `<div class="steps"><b>Nobody new</b>
+        <div style="margin-top:6px">Everybody in that export is already on the class list.</div></div>`;
+  if (n(rep.photos))
+    html += `<div class="note"><b>${n(rep.photos)}</b> ${many(rep.photos,'student','students')} who
+      had no photograph now ${many(rep.photos,'has','have')} one: ${esc(rep.photos.join(', '))}.</div>`;
+  if (rep.filled)
+    html += `<div class="note"><b>${rep.filled}</b> blank detail${rep.filled === 1 ? '' : 's'}
+      filled in — year group, form, house and the like. Nothing that already had a value was
+      changed, and nobody's name or birthday was touched.</div>`;
+  if (n(rep.missing))
+    html += `<div class="note"><b>Not in that export:</b> ${esc(rep.missing.join(', '))}.
+      Still on the class list and still in ${many(rep.missing,'their chair','their chairs')}.
+      If ${many(rep.missing,'they have','they have')} left the class, remove
+      ${many(rep.missing,'them','them')} from ${many(rep.missing,'their','their')} own panel.</div>`;
+  $('mbody').innerHTML = html
+    + `<button class="pbtn" id="udone">Done</button>
+       <button class="pbtn ghost2" id="uagain">Update another class</button>`;
+  $('udone').onclick = shutModal;
+  $('uagain').onclick = () => showUpdate();
+  if (n(rep.added))
+    flash(rep.added.join(' and ') + (n(rep.added) === 1 ? ' is' : ' are')
+          + ' on the class list — drag ' + (n(rep.added) === 1 ? 'them' : 'them') + ' to a chair.');
+}
+
+/* ---------------------------------------------------------------- printing */
+/* The sheet is laid out in millimetres against the paper the print job is actually
+   given - the app tells the printer which paper and which way round, rather than
+   hoping the two agree. See preparePrint and, on the native side, main.swift. */
+const MM = 96/25.4;                            // CSS pixels in one millimetre
+const PMARGIN = 10;                            // mm of margin, set on the print job too
+/* Held back from the paper. Across the width a millimetre or two is all it takes: that is
+   only there so a printer that calls A4 209.9mm wide cannot tip a sheet onto a second page.
+
+   The foot of the paper is a different matter and needs a great deal more. Very few
+   printers can put ink right down to the bottom edge - a good many inkjets cannot image
+   the last 15mm of it - and whatever falls in that strip is simply not printed. The
+   sheets used to end 14mm from the bottom, which is inside it. On an ordinary plan that
+   went unnoticed, because there is white space down there anyway; in reading mode the
+   grid is drawn to fill the sheet, so what sat in that strip was the last row of cards,
+   and a row of students came out missing. */
+const PSLACK = 2;                              // mm across the width
+const PFOOT  = 20;                             // mm kept clear at the foot of the paper
+const PGAP = 4;                                // mm between the plan and the list under it
+const PLANSHARE = 0.42;                        // the least of a sheet the plan ever gives up
+const MINLIST = 0.7;                           // and the most the list is ever shrunk by
+const MINCOL = 62;                             // mm: narrower than this and a column stops reading
+const MINROWS = 5;                             // and a column of fewer names than this looks broken
+const LISTGAP = 6;                             // mm between them - matches .plistcols in the CSS
+
+/* Which classes this printout covers. Kept with the print settings, so the same four
+   classes are one click next week. Names that have since gone are dropped. */
+function printClasses(){
+  const here = new Set((S.classes||[]).map(c => c.name));
+  const list = (pset().classes || []).filter(n => here.has(n));
+  return list.length ? list : (S.active ? [S.active] : []);
+}
+
+function showPrint(){
+  const P = pset();
+  // What used to be the third entry in the list below is a switch of its own now.
+  if (P.names === 'both'){ P.names = 'preferred'; P.realname = 1; save(); }
+  const anyNew = S.students.some(s => s.isNew);
+  const C = cardSettings(P);                   // what will actually be on a card
+  const lock = follows(P) ? 'disabled' : '';   // shown either way, but the screen owns them
+  const eg = S.students.find(s => s.forename && s.first && s.forename !== s.first);
+  const lead  = !eg ? '' : C.names === 'full' ? eg.forename : eg.first;
+  const spare = !eg ? '' : C.names === 'full' ? eg.first : eg.forename;
+  const nameEg = !eg ? '' : 'e.g. ' + lead + ' ' + eg.surname
+    + (cardSettings(P).realname && spare && spare !== lead
+       ? ', with (' + spare + ') underneath' : '');
+  const picked = printClasses(), many = (S.classes||[]).length > 1;
+  $('mtitle').textContent = 'Print';
+  $('msub').textContent = 'One sheet a class, laid out to the paper you choose here. '
+    + 'These settings go on every class you tick.';
+  $('mbody').innerHTML = `
+    <div class="grid4" style="gap:12px">
+      <div><label style="display:block;font-size:11.5px;font-weight:700;letter-spacing:.07em;
+        text-transform:uppercase;color:var(--ink-3);margin-bottom:5px">Paper</label>
+        <select id="psize" style="width:100%;border:1px solid var(--line);border-radius:9px;padding:10px 12px">
+          <option value="A4"${P.paper!=='A3'?' selected':''}>A4</option>
+          <option value="A3"${P.paper==='A3'?' selected':''}>A3 — bigger faces</option></select></div>
+      <div><label style="display:block;font-size:11.5px;font-weight:700;letter-spacing:.07em;
+        text-transform:uppercase;color:var(--ink-3);margin-bottom:5px">Way round</label>
+        <select id="pori" style="width:100%;border:1px solid var(--line);border-radius:9px;padding:10px 12px">
+          <option value="auto">Fit automatically</option>
+          <option value="landscape">Landscape</option><option value="portrait">Portrait</option></select></div>
+    </div>
+    <h3 class="mt">How it is laid out</h3>
+    <div class="toggles">
+      <label class="tgl"><input type="checkbox" id="pbig" ${C.big?'checked':''} ${lock}>
+        Big names — leave the tables out</label>
+      <div class="note" style="margin:0">The chairs keep the row and the column they are
+        really in, so the plan still says who sits where, but without the tables between
+        them there is room for cards several times the size. Turning the photographs off
+        below makes the names larger again. Print it this way when you want to read a name
+        across the room; print it with the room when you want to see the room.</div>
+    </div>
+    <h3 class="mt">On each card</h3>
+    <div class="toggles">
+      <label class="tgl"><input type="checkbox" id="pfol" ${follows(P)?'checked':''}>
+        <b>Match what is on screen</b></label>
+      <div class="note" style="margin:0 0 8px">${follows(P)
+        ? 'Set the plan up once, on screen, and the sheet comes out the same. Untick this to '
+          + 'give the printout its own settings — for a handout that is not what you work from.'
+        : 'This printout has its own settings, so the plan on screen is left exactly as it is. '
+          + 'Tick it to go back to printing what you can see.'}</div>
+      <label class="tgl"><input type="checkbox" id="pph" ${C.photos?'checked':''} ${lock}> Photographs</label>
+      <label class="tgl"><input type="checkbox" id="psn" ${C.surnames?'checked':''} ${lock}> Surnames</label>
+      <label class="tgl"><input type="checkbox" id="prn" ${C.realname?'checked':''} ${lock}>
+        Their real name, in brackets underneath</label>
+      <label class="tgl"><input type="checkbox" id="plb" ${C.labels?'checked':''} ${lock}> Labels</label>
+      ${anyNew ? `<label class="tgl"><input type="checkbox" id="pnb" ${C.newb?'checked':''} ${lock}>
+        The New badge, on students in their first year</label>` : ''}
+    </div>
+    ${C.labels || !(anyNew && C.newb) ? '' : `<div class="note" style="margin:7px 0 0">The
+      labels are off, but the New badge is a switch of its own and is still on. Turn that
+      off too for a sheet you could hand to the class.</div>`}
+    <div style="margin:13px 0 0">
+      <label style="display:block;font-size:11.5px;font-weight:700;letter-spacing:.07em;
+        text-transform:uppercase;color:var(--ink-3);margin-bottom:5px">Which name</label>
+      <select id="pnm" ${lock} style="width:100%;border:1px solid var(--line);border-radius:9px;padding:10px 12px">
+        <option value="preferred"${C.names!=='full'?' selected':''}>Preferred name</option>
+        <option value="full"${C.names==='full'?' selected':''}>Real name</option>
+      </select>
+      ${nameEg ? `<div class="note" style="margin-top:5px">${esc(nameEg)}</div>` : ''}
+    </div>
+    <h3 class="mt">Also print</h3>
+    <div class="toggles">
+      ${C.labels
+        ? `<label class="tgl"><input type="checkbox" id="pl" ${P.legend?'checked':''}> What the labels mean</label>`
+        : `<div class="note" style="margin:0 0 7px">With the labels off there is nothing to
+             explain, so the key is left out.</div>`}
+      <label class="tgl"><input type="checkbox" id="pc" ${P.list?'checked':''}> A class list, with your notes, underneath the plan</label>
+      <label class="tgl"><input type="checkbox" id="pm" ${P.mono?'checked':''}> Black and white, for annotating by hand</label>
+    </div>
+    ${many ? `<h3 class="mt">Which classes</h3>
+    <div class="toggles" id="pcls">
+      ${S.classes.map(c => `<label class="tgl"><input type="checkbox" data-cl="${esc(c.name)}"
+        ${picked.includes(c.name)?'checked':''}> ${esc(c.name)}
+        <span class="cap" style="font-size:11.5px">${c.seated} of ${c.students} seated</span></label>`).join('')}
+    </div>
+    <div style="display:flex;gap:8px;margin-top:9px">
+      <button class="btn" id="pcAll" style="flex:1">Tick them all</button>
+      <button class="btn" id="pcOne" style="flex:1">Just this class</button>
+    </div>
+    <div class="note">Every class ticked comes out with the settings above, one after the
+      other in a single print job — you no longer have to open them one at a time. Each
+      class keeps its own room, its own labels and its own notes.</div>` : ''}
+    <button class="pbtn" id="doPrint">${printBtnLabel(picked)}</button>
+    <button class="pbtn ghost2" id="pkids">Set it up for the students</button>
+    <div class="note">These choices apply to the printout only — the plan on screen stays exactly
+      as it is. The student's view carries over if you have it on.</div>`;
+  const set = (k, v) => { pset()[k] = v; save(); };
+  const again = () => { const y = $('mbody').scrollTop; showPrint(); $('mbody').scrollTop = y; };
+  /* Several of these controls are only drawn some of the time - the ones that explain
+     labels are not worth drawing when the labels are off - so every one of them is
+     attached through here. Reaching straight for a control that was not drawn threw, and
+     because that happened before the dialog was put on screen the whole of Print
+     disappeared: the button did nothing at all, and went on doing nothing every time,
+     because the setting that had caused it was saved with the class. */
+  const on = (id, fn) => { const el = $(id); if (el) el.onchange = fn; };
+  on('pph', e => set('photos',   e.target.checked?1:0));
+  on('psn', e => set('surnames', e.target.checked?1:0));
+  on('prn', e => { set('realname', e.target.checked?1:0); again(); });   // the example follows it
+  on('plb', e => { set('labels', e.target.checked?1:0); again(); });   // the key follows it
+  on('pnm', e => { set('names', e.target.value); again(); });
+  on('pnb', e => set('newb', e.target.checked?1:0));
+  on('pl',  e => set('legend', e.target.checked?1:0));
+  on('pfol', e => { set('follow', e.target.checked?1:0); again(); });
+  on('pbig', e => { set('big', e.target.checked?1:0); again(); });
+  on('pc', e => set('list', e.target.checked?1:0));
+  on('pm', e => set('mono', e.target.checked?1:0));
+  on('psize', e => set('paper', e.target.value));
+  // the classes this run covers; the one on screen is always printable, ticked or not
+  const pickClasses = list => { set('classes', list); again(); };
+  $('mbody').querySelectorAll('[data-cl]').forEach(el => el.onchange = () => {
+    const on = [...$('mbody').querySelectorAll('[data-cl]')]
+      .filter(x => x.checked).map(x => x.dataset.cl);
+    pickClasses(on.length ? on : [S.active]);
+  });
+  if ($('pcAll')) $('pcAll').onclick = () => pickClasses(S.classes.map(c => c.name));
+  if ($('pcOne')) $('pcOne').onclick = () => pickClasses([S.active]);
+  // Faces and names, nothing else - the copy that goes on the wall or into their hands.
+  // It asks for a sheet deliberately unlike the one on screen, so it stops following it.
+  // While it still followed, everything set here was read straight back off the screen
+  // and the button did nothing at all: you pressed it, the labels stayed on, and the
+  // sheet you handed out still said which children were which.
+  $('pkids').onclick = () => {
+    const C = cardSettings(pset());          // keep the layout, drop what identifies them
+    Object.assign(pset(), {follow:0, photos:1, surnames:1, names:'preferred',
+                           big:C.big, realname:0, labels:0, newb:0, list:0});
+    save(); again();
+  };
+  $('doPrint').onclick = () => { const o = $('pori').value; shutModal(); setTimeout(()=>doPrint(o), 120); };
+  openModal();
+}
+const printBtnLabel = list => list.length > 1 ? 'Print ' + list.length + ' classes' : 'Print';
+
+const PAPER = {A4:[297,210], A3:[420,297]};      // [long edge, short edge] in mm
+/* The sheet in millimetres: the paper less the margins the print job is given, and a hair
+   more - a printer that calls A4 209.9mm wide must not tip a sheet onto a second page. */
+function sheetSize(paper, wide){
+  const [long, short] = PAPER[paper === 'A3' ? 'A3' : 'A4'];
+  return {w: (wide ? long : short) - 2*PMARGIN - PSLACK,
+          h: (wide ? short : long) - PMARGIN - PFOOT};
+}
+// The key only earns its space when there are labels on the cards to explain.
+const printLegend = P => !!(P.legend && P.labels);
+
+/* One print job carries one paper size and one way round, so when the choice is left to
+   the app it goes with whichever way leaves the tightest of the chosen plans the most
+   room. Rough allowances - for the heading, and for the class list when it is sharing the
+   sheet - are enough to choose between two options. */
+function bestWayRound(jobs, paper, withList, big){
+  const worst = wide => {
+    const s = sheetSize(paper, wide);
+    const usable = (s.h - 25) * (withList ? 0.55 : 1);
+    return Math.min(...jobs.map(j => {
+      const L = j.G[wide ? 'wide' : 'tall'];
+      const k = Math.min(s.w * MM / L.w, usable * MM / L.h);
+      // In reading mode a card is free to change shape, so the two ways round are not
+      // told apart by how much of the sheet is filled - they are told apart by the size
+      // of name each of them ends up with, which is the whole point of the mode.
+      return big ? k * L.card.nm : k;
+    }));
+  };
+  return worst(true) >= worst(false);
+}
+
+/* Draw another class without disturbing the one on screen. Everything that draws a card
+   reads these globals, so they stand in for the length of the call and are put back
+   afterwards - including the editing state, which has no business on a printout. */
+function withClass(d, P, fn){
+  const keep = {active:S.active, students:S.students, plan:S.plan,
+                mode:printMode, editing, sel, selItem};
+  S.active = d.name; S.students = d.students || []; S.plan = d.plan || {};
+  printMode = P; editing = false; sel = null; selItem = null;
+  try { return fn(); }
+  finally {
+    S.active = keep.active; S.students = keep.students; S.plan = keep.plan;
+    printMode = keep.mode; editing = keep.editing; sel = keep.sel; selItem = keep.selItem;
+  }
+}
+
+/* A class the printout needs. The one on screen is already here; the others are read
+   from disk once and kept, since nothing can change them without reopening the page. */
+const classCache = {};
+async function classData(name){
+  if (name === S.active) return {name, students:S.students, plan:S.plan};
+  if (!classCache[name]){
+    const r = await api('/api/class?name=' + encodeURIComponent(name)).catch(()=>null);
+    if (!r || r.error) return null;
+    classCache[name] = r;
+  }
+  return classCache[name];
+}
+
+function headHTML(P, flipped){
+  const when = new Date().toLocaleDateString(undefined,{day:'numeric',month:'long',year:'numeric'});
+  const nSeated = Object.values(seats()).filter(Boolean).length;
+  return `<h2>${esc(S.active)}${plans().length>1 ? ' — ' + esc(cur().name) : ''}</h2>
+    <div class="pmeta">${nSeated} of ${S.students.length} students seated · ${when}${
+      flipped ? " · student's view" : ''}</div>
+    ${cur().note ? `<div class="pnote">${esc(cur().note)}</div>` : ''}
+    ${printLegend(P) ? `<div class="plegend">${tags().map(t=>
+      `<span class="lg"><span class="dot" style="background:${esc(t.colour)}"></span>
+       <b>${esc(t.short||t.label)}</b>&nbsp;${esc(t.label)}</span>`).join('')}</div>` : ''}`;
+}
+
+/* One class, one sheet: the plan at the top and, if it was asked for, the class list
+   underneath it. Both are left at their natural size here - they are fitted to the paper
+   once they have been laid out and their real heights are known, which is the only
+   honest way to do it. */
+function sheetHTML(P, s, flipped, L){
+  // These go on the sheet's own room, beside the sizes they work with, so this sheet is
+  // drawn to its own settings whatever the screen behind it happens to be set to.
+  const plain = (P.photos?'':' nophoto') + (P.surnames?'':' nosur') + (P.big?' big':'');
+  return `<section class="psheet" style="width:${(s.w * MM).toFixed(2)}px">
+      <div class="phead">${headHTML(P, flipped)}</div>
+      <div class="proom"><div class="roomscale"><div class="room${flipped?' flip':''}${plain}"
+        style="width:${L.w}px;height:${L.h}px;${bigVars(L)}">${roomHTML(L)}</div></div></div>
+      ${P.list ? `<div class="pbelow"><div class="pbelowin">${
+        classListHTML(printLegend(P))}</div></div>` : ''}
+    </section>`;
+}
+
+/* The list in as many columns as it takes to sit under the plan rather than run on to a
+   page of its own. The rows are moved rather than redrawn, so the numbering and
+   everything in them is exactly what was there before. */
+function listColumns(inner, cols){
+  const holder = inner.querySelector('.plistcols');
+  let table = inner.querySelector('table.plist');
+  if (holder){                                  // back to one table before splitting again
+    table = holder.querySelector('table');
+    const body = table.querySelector('tbody');
+    holder.querySelectorAll('table').forEach((t, i) => {
+      if (i) t.querySelectorAll('tbody tr').forEach(tr => body.appendChild(tr));
+    });
+    holder.replaceWith(table);
+  }
+  if (!table || cols < 2) return;
+  const rows = [...table.querySelectorAll('tbody tr')];
+  const per = Math.ceil(rows.length / cols);
+  if (per < 2) return;
+  const wrap = document.createElement('div');
+  wrap.className = 'plistcols';
+  table.replaceWith(wrap); wrap.appendChild(table);
+  for (let c = 1; c < cols; c++){
+    const t = table.cloneNode(false);
+    t.appendChild(table.querySelector('thead').cloneNode(true));
+    const tb = document.createElement('tbody');
+    t.appendChild(tb);
+    rows.slice(c*per, (c+1)*per).forEach(tr => tb.appendChild(tr));
+    wrap.appendChild(t);
+  }
+}
+
+/* Wait for the photographs. A sheet sent to the printer before its faces have arrived
+   comes out with holes where the students should be. */
+function photosReady(host){
+  const imgs = [...host.querySelectorAll('img')].filter(i => !i.complete);
+  if (!imgs.length) return Promise.resolve();
+  return Promise.race([
+    Promise.all(imgs.map(i => new Promise(done => { i.onload = i.onerror = done; }))),
+    new Promise(done => setTimeout(done, 8000))
+  ]);
+}
+
+async function preparePrint(ori){
+  const P = pset(), names = printClasses();
+  const C = cardSettings(P);
+  const M = {photos:C.photos, surnames:C.surnames, labels:C.labels, names:C.names,
+             legend:P.legend, list:P.list, big:C.big, realname:C.realname,
+             // The New badge has a switch of its own and answers to it alone. It used to
+             // be forced off whenever the labels were off, which meant a teacher could
+             // turn the badge on, watch it appear on screen, and get a sheet without it -
+             // a switch overruled by a different switch, silently.
+             newb: C.newb};
+  const flipped = $('room').classList.contains('flip');
+
+  /* Roughly the sheet reading mode is aiming at: the paper less the heading, and less
+     the class list when that is sharing the page. The exact fit is done further down off
+     the real heights - this only has to be good enough to choose a shape for the cards
+     and a way round for the paper, and it is worked out for both ways round because
+     which of them gives the bigger name is not obvious until it has been. */
+  const aim = wide => { const q = sheetSize(P.paper, wide);
+                        return q.w / Math.max(40, (q.h - 25) * (P.list ? 0.55 : 1)); };
+
+  const jobs = [];
+  for (const n of names){
+    const d = await classData(n);
+    if (!d) continue;
+    jobs.push({d, G: withClass(d, M, () => {
+      fitRoom();
+      if (!M.big){ const L = Object.assign({}, layout()); return {wide:L, tall:L}; }
+      return {wide: bigGrid(aim(true)), tall: bigGrid(aim(false))};
+    })});
+  }
+  if (!jobs.length) return null;
+
+  const wide = ori === 'landscape' ? true : ori === 'portrait' ? false
+             : bestWayRound(jobs, P.paper, !!P.list, M.big);
+  const s = sheetSize(P.paper, wide);
+  jobs.forEach(j => { j.L = j.G[wide ? 'wide' : 'tall']; });
+
+  const host = $('psheets');
+  host.className = P.mono ? 'mono' : '';
+  host.innerHTML = jobs.map(j => withClass(j.d, M, () => sheetHTML(M, s, flipped, j.L))).join('');
+  fitNames(host);
+
+  // Now everything is on the page and has a height, share what is left of each sheet
+  // between the plan and the list under it. Nothing is guessed and nothing is scaled twice.
+  host.querySelectorAll('.psheet').forEach(el => {
+    const proom = el.querySelector('.proom'); if (!proom) return;
+    proom.style.overflow = 'visible';
+    const room = proom.querySelector('.room');
+    const L = {w: parseFloat(room.style.width), h: parseFloat(room.style.height)};
+    // where the plan actually starts, margins and all, rather than the heading's own height
+    const top = proom.getBoundingClientRect().top - el.getBoundingClientRect().top;
+    const space = Math.max(20, s.h - top / MM);          // all that is left below the heading
+    const below = el.querySelector('.pbelow'), inner = below && below.querySelector('.pbelowin');
+    const tall = () => inner.getBoundingClientRect().height / MM + PGAP;
+
+    /* A list taking more than its share is put into columns rather than allowed to push
+       the plan off the sheet. How many is not worth guessing from the width of the paper:
+       it depends on what is in the table, and a column too narrow for its contents wraps
+       the rows and comes out taller than it started - which is exactly what a guess used
+       to get wrong. So each one is tried and kept only while it genuinely helps. */
+    let listMM = 0;
+    if (inner){
+      listColumns(inner, 1);
+      const names = inner.querySelectorAll('table.plist tbody tr').length;
+      let best = 1, bestMM = tall();
+      // Always worth trying. It used to try only once the list had already taken more
+      // than its share of the sheet, which meant a list sitting just under that line
+      // stayed in one tall column and the plan went short for no reason at all.
+      const roomFor = cols => (s.w - (cols - 1) * LISTGAP) / cols >= MINCOL;
+      for (let cols = 2; cols <= 4 && roomFor(cols) && names / cols >= MINROWS; cols++){
+        listColumns(inner, cols);
+        const h = tall();
+        if (h >= bestMM - 0.5) break;            // no shorter: that is as far as it goes
+        best = cols; bestMM = h;
+      }
+      listColumns(inner, best);
+      listMM = tall();
+    }
+
+    // The plan keeps at least its share of the sheet however long the list is, and gets
+    // more when the list is short. A list that will not fit in what is left is shrunk,
+    // down to the point where it is still comfortably readable and no further.
+    const avail = Math.max(space * PLANSHARE, space - listMM);
+    const scale = Math.max(0.05, Math.min(s.w * MM / L.w, avail * MM / L.h, 1.6));
+    const roomMM = Math.min(avail, L.h * scale / MM);    // a wide plan needs less than it may have
+    proom.style.height = (roomMM * MM) + 'px';   // px, like the room it holds
+    const sc = proom.querySelector('.roomscale');
+    sc.style.width = (L.w * scale) + 'px'; sc.style.height = (L.h * scale) + 'px';
+    room.style.transformOrigin = 'top left';
+    room.style.transform = 'scale(' + scale + ')' +
+      (flipped ? ' translate(' + L.w + 'px,' + L.h + 'px) rotate(180deg)' : '');
+
+    if (!inner) return;
+    const forList = space - roomMM;
+    const k = listMM <= forList ? 1 : Math.max(MINLIST, forList / listMM);
+    if (k < 1){
+      inner.style.transform = 'scale(' + k + ')';
+      inner.style.width = (100 / k) + '%';               // so it still fills the sheet across
+    }
+    // Held to its share only when it really does fit; a list too long for any one sheet
+    // runs on to the next rather than being quietly cut off at the bottom.
+    if (listMM * k <= forList + 0.5){ below.style.height = (forList * MM) + 'px'; }
+    else { below.style.overflow = 'visible'; }
+  });
+
+  // Belt and braces for a browser: the app tells the printer the paper itself.
+  let st = $('pgstyle');
+  if (!st){ st = document.createElement('style'); st.id = 'pgstyle'; document.head.appendChild(st); }
+  st.textContent = '@media print{@page{size:' + (P.paper === 'A3' ? 'A3 ' : 'A4 ')
+    + (wide ? 'landscape' : 'portrait') + ';margin:' + PMARGIN + 'mm}}';
+
+  await photosReady(host);
+  return {paper: P.paper === 'A3' ? 'A3' : 'A4', wide, sheets: jobs.length};
+}
+
+/* Hand the sheets to the printer, and leave them alone until it has finished with them.
+   The job is rendered when the print panel closes, not when it opens, so anything that
+   redraws the page in between is printed instead of what the preview showed - which is
+   why nothing here touches the page until afterprint comes back. */
+function nativePrint(job){
+  const mh = window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.appwindow;
+  if (mh){
+    try {
+      mh.postMessage(JSON.stringify({cmd:'print', paper:job.paper,
+                                     landscape:!!job.wide, marginMM:PMARGIN}));
+      return;
+    } catch(e){ /* fall through to the browser's own */ }
+  }
+  window.print();
+}
+
+let printGuard = null;
+/* Laying the sheets out has to finish before anything can be sent, but it must never be
+   able to not finish: a class read from the helper, a photograph that never arrives, and
+   the press is simply lost with nothing on screen to say why. */
+const PREPWAIT = 45000;
+async function doPrint(ori){
+  if (printing){ flash('That printout is still being laid out — one moment.'); return; }
+  printing = true;
+
+  // The way out is set up before the first thing that can go wrong, not after it. It used
+  // to be set after the sheets were laid out, so a lay-out that never finished left Print
+  // switched off for the rest of the session with no message and nothing to try.
+  const done = () => {
+    if (!printing) return;
+    printing = false;
+    removeEventListener('afterprint', done);
+    clearTimeout(printGuard);
+    $('psheets').innerHTML = '';              // the sheets have done their job
+  };
+  addEventListener('afterprint', done);
+  printGuard = setTimeout(done, 15 * 60 * 1000);
+
+  let job = null;
+  try {
+    job = await Promise.race([preparePrint(ori),
+      new Promise((_, no) => setTimeout(() => no(new Error('it took too long to lay out')),
+                                        PREPWAIT))]);
+  }
+  catch(e){ done(); flash('That would not print: ' + (e && e.message ? e.message : e)); return; }
+  if (!job){ done(); flash('There was nothing to print.'); return; }
+
+  setTimeout(() => nativePrint(job), 60);
+}
+/* File ▸ Print and ⌘P come here rather than printing whatever is on screen. Always
+   answered, even when there is nothing to print - falling through would hand the printer
+   a page with the sheets not built yet, which is a blank one. */
+window.appPrintDialog = () => {
+  if (editing) flash('Finish with the room first — Done, then Print.');
+  else if (!S.active) flash('There is no class to print yet.');
+  else showPrint();
+  return true;
+};
+/* The list that goes under the plan. The key is left out when the heading at the top of
+   the same sheet is already carrying one. */
+function classListHTML(headHasLegend){
+  const where = {}; for (const k in seats()) if (seats()[k]) where[seats()[k]] = k;
+  const rows = S.students.slice().sort((a,b)=>(a.surname+a.first).localeCompare(b.surname+b.first));
+  const used = headHasLegend ? [] : tags().filter(t => Object.values(marks()).some(m => m.includes(t.id)));
+  const away = pairs().map(([a,b]) => [byId(a), byId(b)]).filter(([a,b]) => a && b);
+  /* Names and labels, and your own notes where you have written any. Everything that
+     used to be in here as well - a running number, the register name, the form, a tick
+     to say they have a seat - is either already on their card or already in the heading,
+     and all it did here was make the table too wide to stand in columns. That width was
+     the whole problem: one tall column of it took over half the sheet and left the plan
+     with what was over. Narrow enough to double up, it takes a quarter of that, and the
+     names can be big enough to find someone at a glance. */
+  const anyNote = rows.some(s => (notes()[s.id] || '').trim());
+  return `<h3>${esc(S.active)} — class list</h3>
+    ${used.length ? `<div class="plegend" style="margin:0 0 6px">${used.map(t=>
+      `<span class="lg"><span class="dot" style="background:${esc(t.colour)}"></span>
+       <b>${esc(t.short||t.label)}</b>&nbsp;${esc(t.label)}</span>`).join('')}</div>` : ''}
+    <table class="plist tight"><thead><tr><th>Name</th><th>Labels</th>
+      ${anyNote ? '<th>Notes</th>' : ''}</tr></thead><tbody>
+    ${rows.map(s=>`<tr><td class="who"><b>${esc(s.surname)}</b>, ${esc(s.first)}${
+        where[s.id] ? '' : ' <span class="noseat">no seat</span>'}</td>
+      <td>${(marks()[s.id]||[]).map(tagById).filter(Boolean)
+             .map(t=>`<span class="tg" style="${chipStyle(t.colour)}">${esc(t.short||t.label)}</span>`).join(' ')}</td>
+      ${anyNote ? `<td>${esc(notes()[s.id]||'')}</td>` : ''}</tr>`).join('')}
+    </tbody></table>
+    ${away.length ? `<div style="margin-top:10px;font-size:11.5px;line-height:1.7">
+      <b style="font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:#666">Keep apart</b><br>
+      ${away.map(([a,b])=>esc(a.name)+' &nbsp;·&nbsp; '+esc(b.name)).join('<br>')}</div>` : ''}`;
+}
+
+/* --------------------------------------------------------------- toolbar */
+$('classBtn').onclick = showClasses;
+$('planBtn').onclick  = showPlans;
+$('shuffle').onclick = () => fill('random');
+$('alpha').onclick   = () => fill('alpha');
+$('alt').onclick     = () => fill('alt');
+$('clear').onclick   = () => { snapshot(); cur().seats = {}; sel=null; save(); render(); };
+$('undo').onclick    = undo;
+$('labels').onclick  = showTags;
+$('addStudent').onclick = showAddStudent;
+$('print').onclick   = showPrint;
+$('zoomFit').onclick = () => { autoFit = true; $('zoomFit').setAttribute('aria-pressed','true'); applyZoom(); };
+$('zoomIn').onclick  = () => { autoFit=false; $('zoomFit').setAttribute('aria-pressed','false');
+                               zoom = Math.min(1.6, zoom + .1); applyZoom(zoom); };
+$('zoomOut').onclick = () => { autoFit=false; $('zoomFit').setAttribute('aria-pressed','false');
+                               zoom = Math.max(.25, zoom - .1); applyZoom(zoom); };
+addEventListener('resize', () => {
+  if (bigOn()) render();            // the cards are shaped to the window, so they follow it
+  else if (autoFit) applyZoom();
+});
+$('flip').onclick    = () => {
+  const on = $('room').classList.toggle('flip');
+  $('flip').setAttribute('aria-pressed', on);
+  $('flip').textContent = on ? "Teacher's view" : "Student's view";
+  applyZoom(autoFit ? null : zoom);
+};
+/* Reading mode is a way of looking at the plan, like the student's view, so it lives
+   next to it and is remembered with everything else about this class.
+
+   The button keeps its name whichever way it is set, the way Fit does. Renaming it to
+   "Show the room" while it was on was worse than saying nothing: the two names are not
+   obviously opposites, so it read as some other thing this button now did rather than as
+   the way back, and the way back looked as though it was missing. Lit up means on. */
+function paintBig(){
+  const on = !!show().big;
+  $('big').setAttribute('aria-pressed', on);
+  $('big').title = on ? 'Big names is on — click to put the room back'
+                      : 'Leave the tables out and make the names as large as they will go';
+}
+$('big').onclick = () => { show().big = show().big ? 0 : 1; save(); paintBig(); render(); };
+$('editRoom').onclick = () => {
+  editing = !editing; sel = null; selItem = null;
+  $('editRoom').textContent = editing ? 'Done' : 'Edit the room';
+  $('editRoom').classList.toggle('primary', !editing);
+  ['shuffle','alpha','alt','clear','flip','big','print','labels','undo','addStudent']
+    .forEach(i => $(i).disabled = editing);
+  if (!editing){ $('undo').disabled = !undoStack.length; $('alt').disabled = !altOK; }
+  render();
+};
+
+/* ------------------------------------------------------------------ boot */
+/* Students who have left the class since the last import are still named in the old plan.
+   Forget them, so a departed student cannot hold a chair nobody can sit in. */
+function forgetLeavers(){
+  const here = new Set(S.students.map(s => s.id));
+  let changed = false;
+  for (const p of plans())
+    for (const k in (p.seats||{}))
+      if (p.seats[k] && !here.has(p.seats[k])){ delete p.seats[k]; changed = true; }
+  for (const k in marks()) if (!here.has(k)){ delete marks()[k]; changed = true; }
+  for (const k in pins())  if (!here.has(k)){ delete pins()[k];  changed = true; }
+  for (const k in notes()) if (!here.has(k)){ delete notes()[k]; changed = true; }
+  const keep = pairs().filter(([a,b]) => here.has(a) && here.has(b));
+  if (keep.length !== pairs().length){ S.plan.pairs = keep; changed = true; }
+  return changed;
+}
+
+async function boot(){
+  S = await api('/api/state');
+  if (!S.active){
+    $('sub').textContent = 'No class yet';
+    $('wrap').innerHTML =
+      `<div class="empty2"><h3>No class yet</h3>
+        <p>Add one from the <b>Classes</b> button and it will pull the students,
+        their photographs and their preferred names straight out of your iSAMS exports.</p></div>`;
+    $('bar').style.display = 'none';
+    setTimeout(showImport, 300);
+    return;
+  }
+  if (!cur().layout){
+    /* A first room you can recognise: the board and screen at the front with the teacher's
+       desk beside them, the door at the back, and six benches of four. 24 chairs seats a
+       normal class with a few spare. Two long tables either side of the TV, which this used
+       to be, is not a room anybody teaches in. Drag anything; Edit the room changes it all. */
+    cur().layout = {name:'Room', w:1052, h:990, items:[
+      {id:'t1', type:'table', x:94, y:278, seats:{top:2,bottom:2,left:0,right:0}, label:'Bench 1'},
+      {id:'t2', type:'table', x:422, y:278, seats:{top:2,bottom:2,left:0,right:0}, label:'Bench 2'},
+      {id:'t3', type:'table', x:750, y:278, seats:{top:2,bottom:2,left:0,right:0}, label:'Bench 3'},
+      {id:'t4', type:'table', x:94, y:706, seats:{top:2,bottom:2,left:0,right:0}, label:'Bench 4'},
+      {id:'t5', type:'table', x:422, y:706, seats:{top:2,bottom:2,left:0,right:0}, label:'Bench 5'},
+      {id:'t6', type:'table', x:750, y:706, seats:{top:2,bottom:2,left:0,right:0}, label:'Bench 6'},
+      {id:'m_board', type:'marker', shape:'board', label:'Whiteboard', x:94, y:40, w:430, h:26},
+      {id:'m_tv', type:'marker', shape:'tv', label:'Screen', x:788, y:32, w:170, h:74},
+      {id:'m_desk', type:'marker', shape:'desk', label:'Teacher', x:94, y:90, w:190, h:62},
+      {id:'m_door', type:'marker', shape:'door', label:'Door', x:28, y:816, w:26, h:120}
+    ]};
+    save();
+  }
+  if (forgetLeavers()) save();
+  paintSub();
+  altOK = S.students.some(s => s.gender === 'M') && S.students.some(s => s.gender === 'F');
+  if (!altOK){
+    $('alt').disabled = true;
+    $('alt').title = 'This class is single sex, or the import carried no gender, so there is nothing to alternate.';
+  }
+  paintBig();
+  render();
+}
+
+/* The helper stops on its own once this window has gone, and a check-in every minute is
+   how it knows the window is still here. A timer alone is not enough to promise that:
+   macOS slows timers right down in a window that is behind everything else, and stops
+   them altogether while the Mac is asleep. So the page also checks in the moment it is
+   looked at again, which is exactly when a lid has just been opened. */
+/* Anywhere but on one of the boxes, a dropped file is simply refused. Left to itself the
+   window would navigate to it - the plan replaced by a spreadsheet, and no way back. */
+addEventListener('dragover', e => e.preventDefault());
+addEventListener('drop',     e => e.preventDefault());
+
+function beat(){ api('/api/heartbeat', {method:'POST', wait:8000}).catch(()=>{}); }
+setInterval(beat, 45000);
+addEventListener('focus', beat);
+addEventListener('pageshow', beat);
+document.addEventListener('visibilitychange', () => { if (!document.hidden) beat(); });
+boot();
+</script>
+</body></html>

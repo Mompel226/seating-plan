@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>Seating Plan — read me</title>
+<style>
+ body{font:16px/1.65 -apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;color:#12302e;
+  max-width:760px;margin:48px auto;padding:0 26px}
+ h1{font-size:31px;letter-spacing:-.02em;margin-bottom:4px}
+ h2{font-size:19px;margin:34px 0 8px;padding-top:16px;border-top:1px solid #dbe8e6}
+ .lede{color:#5c7a77;margin-bottom:8px}
+ code{background:#eef6f5;padding:2px 6px;border-radius:5px;font-size:14px}
+ li{margin:5px 0} table{border-collapse:collapse;width:100%;margin-top:8px}
+ td,th{border-bottom:1px solid #dbe8e6;padding:7px 8px;text-align:left;font-size:15px;vertical-align:top}
+ th{color:#5c7a77;font-weight:600;font-size:13px;text-transform:uppercase;letter-spacing:.06em}
+ .warn{background:#fff5e8;border-left:4px solid #eda100;padding:12px 16px;border-radius:0 8px 8px 0;margin:14px 0}
+ .good{background:#eef6f5;border-left:4px solid #1f6f6b;padding:12px 16px;border-radius:0 8px 8px 0;margin:14px 0}
+
+ .gate{background:#f4f7fb;border:1px solid #cddaea;border-radius:14px;padding:18px 22px;margin:18px 0}
+ .gate > b{display:block;font-size:15.5px;margin-bottom:8px}
+ .gate ol{margin:0 0 4px 20px}
+ .gate li{margin:6px 0}
+ .gatebtn{display:inline-block;background:#1f6f6b;color:#fff;text-decoration:none;font-weight:700;
+  border-radius:11px;padding:13px 22px;font-size:15.5px;margin:12px 0 4px}
+ .gatebtn:hover{background:#185956}
+ .gatenote{font-size:13px;color:#5c7a77;line-height:1.55;margin-top:8px}
+ .tg{display:inline-block;font-size:11px;font-weight:800;color:#fff;border-radius:4px;padding:1px 6px;
+  vertical-align:1px}
+ .credit{margin-top:40px;padding-top:16px;border-top:1px solid #dbe8e6;
+  font-size:13.5px;line-height:1.6;color:#5c7a77}
+ .credit b{color:#12302e}
+ .credit a{color:#1f6f6b}
+</style></head><body>
+
+<h1>Seating Plan</h1>
+<p class="lede">Draw your room once, then drag faces into chairs. It prints on one sheet.</p>
+
+<h2>Install (about 20 seconds)</h2>
+<ol>
+  <li>Put this whole folder wherever you keep things — Documents is fine. Keep it together; the app, the classes and the photographs all live here.</li>
+  <li>Double-click <code>Install.command</code>.</li>
+</ol>
+<div class="gate">
+  <b>macOS will block it the first time. That is normal, and this is the quick way through.</b>
+  <ol>
+    <li>Double-click <code>Install.command</code>. macOS says it cannot be opened and offers
+        <b>Move to Trash</b> or <b>Done</b>. Click <b>Done</b> — never Move to Trash.</li>
+    <li>Click the button below. System Settings opens on the right page.</li>
+    <li>Near the bottom it now says <i>"Install.command was blocked…"</i> Click <b>Open Anyway</b>,
+        then <b>Open Anyway</b> again if it asks, and put in your Mac password.</li>
+    <li>It installs. You only ever do this once.</li>
+  </ol>
+  <a class="gatebtn" href="x-apple.systempreferences:com.apple.settings.PrivacySecurity.extension">
+    Open Privacy &amp; Security settings</a>
+  <p class="gatenote">Your browser will ask whether to let this page open System Settings — say yes.
+  If nothing happens, open it by hand:
+  <b>&#63743; menu → System Settings → Privacy &amp; Security</b>, and scroll to the bottom.</p>
+  <p class="gatenote"><b>On macOS 14 and earlier</b> there is a shortcut: right-click
+  <code>Install.command</code> → <b>Open</b> → <b>Open</b>. Apple removed that in macOS 15,
+  which is why the steps above exist.</p>
+</div>
+<p>You get one icon on the Desktop: <b>Seating Plan</b>. It opens in its own window, not in a browser tab.</p>
+<div class="warn"><b>If you move the folder</b> after installing, run <code>Install.command</code> again — the Desktop icon points at wherever the folder was.</div>
+
+<h2>Adding a class</h2>
+<p>Click <b>Classes</b> at the top right, then <b>Add a class…</b>.</p>
+<p><b>Drag each file onto its box</b>, or click the box and choose it — either works, and both work from anywhere: a Finder window, the Downloads stack in the Dock, or the download bar at the bottom of a browser. macOS does not always hand a page the file itself when you drag from the last two; where it does not, it still says where the file is, and the app reads it from there.</p>
+<div class="good"><b>The short answer: fetch two files, not three.</b> The <b>Export Wizard file</b> and the
+<b>Student ID Badge</b> give a seating plan everything it actually uses. The Students Simple Report is
+there if you want it, but you can skip it.</div>
+<div class="good"><b>Getting to the export screen — the same for all three:</b><br>
+<code>Student Manager</code> → tick the class → <code>Search</code> → select all the student names →
+<code>Selected Students</code> → <code>Exporting and Reports</code>.<br>
+Whenever iSAMS offers you a format, pick <b>Excel</b>.</div>
+<table>
+  <tr><th>File</th><th>Where in iSAMS</th><th>What it gives a seating plan</th></tr>
+  <tr><td><b>Export Wizard file</b><br><i>fetch this one</i></td><td>Export Wizard → create a new export → select all the fields</td><td>Names, <b>preferred names</b>, dates of birth, gender</td></tr>
+  <tr><td><b>Student ID Badge</b><br><i>and this one</i></td><td>Custom Reports → Student ID Badge</td><td><b>The photographs.</b> A big file — it takes a minute to read. Worth it.</td></tr>
+  <tr><td><b>Students Simple Report</b><br><i>optional</i></td><td>Students Simple Report → tick every field</td><td>Year group and form, and nothing else the plan uses</td></tr>
+</table>
+
+<h3 style="font-size:16px;margin:22px 0 6px">What the plan actually does with each thing</h3>
+<table>
+  <tr><th>Field</th><th>Where it shows</th><th>In the export?</th></tr>
+  <tr><td>Preferred name, or forename</td><td>The big name on the card</td><td>Yes</td></tr>
+  <tr><td>Surname</td><td>The small line under it</td><td>Yes</td></tr>
+  <tr><td>Photograph</td><td>The face on the card</td><td>Badge file</td></tr>
+  <tr><td>Gender</td><td>The <b>Alternate</b> button, and nothing else</td><td>Yes</td></tr>
+  <tr><td>Date of birth</td><td>Never shown. Used only to tell two students with the same name apart</td><td>Yes</td></tr>
+  <tr><td>Year group and form</td><td>The line under a student's name in the sidebar, and one column of the optional printed class list</td><td>No — Student Report only</td></tr>
+  <tr><td>House</td><td>Nothing. The seating plan never uses it</td><td>No</td></tr>
+</table>
+<p>So the export carries everything except year group and form, and those are cosmetic here — they never affect a plan, a label, or a print of the room itself. The panel shows a live tick-list as you drop files in, so you can always see what you have and what you have not.</p>
+<div class="warn"><b>The one case where the Student Report earns its keep.</b> If two students in the
+same class share a name, the badge file cannot be told which face belongs to which, so their photographs
+are a guess — the import says so in plain words when it happens. Adding the Students Simple Report lets it
+use the form group to get them right. Two students sharing a name inside one class is rare; across a whole
+year group it is not.</div>
+<p>Export <b>one class at a time</b> — a seating plan is per class, not per year group. Give it a name you will recognise on the Classes list, like <code>10B Biology</code>.</p>
+<p>Each class keeps its own room, its own labels and its own plans. Nothing is shared unless you ask it to be.</p>
+<div class="good"><b>When the class changes.</b> Use <b>Update a class with new students…</b> on the Classes list. Export the whole class out of iSAMS again, drop the same files in, and only the students this app has not got are added — with their photographs. Everybody already here keeps their chair, their photograph, their labels, your notes and your keep-apart pairs, and nobody is ever removed behind your back.</div>
+<div class="warn"><b>Adding the class again under the same name is not the same thing.</b> It does update in place and your room and seating do survive, but it rebuilds the class list from the spreadsheet alone: a student you typed in yourself with <b>Add a student…</b> is dropped, a photograph you chose by hand is replaced by the iSAMS one, and anybody missing from the export goes quietly. <b>Update</b> is the one to reach for. Give it a different name and you get a second class instead.</div>
+
+<h2>When a class changes mid-term</h2>
+<p>You do not have to export the class from iSAMS again for the sake of one student.</p>
+<ul>
+  <li><b>Somebody leaves.</b> Click them, then <b>Left the school…</b> at the foot of their panel. They come off this class list for good — their card, their photograph, their labels, your notes about them and any keep-apart pair go with them. Unseating only frees the chair; this is for a student who has actually gone.</li>
+  <li><b>Several arrive at once, or you want their photograph.</b> <b>Classes</b> → <b>Update a class with new students…</b>. Export the whole class from iSAMS again exactly as you did the first time and drop in the same files; the app works out for itself who is already here and adds only the rest, faces and all. It tells you afterwards who it added, who gained a photograph, and who was in your list but not in the export — that last group is left exactly where it is, for you to decide about. This is the only way to get a new student's photograph without going and fetching it yourself.</li>
+  <li><b>One arrives and you have their details to hand.</b> <b>Add a student…</b>, next to <b>Edit the room</b> — inside the class, where you are already working. A surname and a real first name are all that is needed; the preferred name, year group, form, birthday and boy-or-girl are optional, and you can choose a photograph for them there and then.</li>
+</ul>
+<p><b>A photograph can be added or changed at any time</b> — click the student, then <b>Add a photograph…</b> at the foot of their panel. A JPEG, a PNG or a HEIC straight off an iPhone all work; it is resized to match the ones iSAMS supplied, so no card carries a portrait ten times the weight of its neighbours.</p>
+<p>Either way the class list on disk is what changes, so an <b>Export</b> after it carries exactly what you now have: the student who left is not in the file, and the one who joined is.</p>
+<div class="good"><b>A removal can be undone.</b> The class list as it was is kept beside the new one as <code>students.csv.previous</code>, in the class's folder. It is the one place the app edits a list of real children in place, so the version before the edit is always one file away.</div>
+<p>The birthday is only used to tell two students of the same name apart, and boy-or-girl only by <b>Alternate</b>. Neither is needed.</p>
+
+<h2>More than one plan for a class</h2>
+<p><b>Plans</b>, next to Classes. A class can hold several — a theory layout and a practical one, an exam layout, whatever you need.</p>
+<ul>
+  <li>Each plan has its own room and its own seating.</li>
+  <li>Labels, written notes, keep-apart pairs and pins are facts about the students, so every plan in the class shares them. Set them once.</li>
+  <li>A new plan starts with a copy of the room you are looking at and nobody seated. <b>Duplicate</b> copies the seating too.</li>
+  <li>Rename one by typing over its name.</li>
+</ul>
+<p>With a single plan the button just says <b>Plans</b> and nothing else changes. It only starts naming things once you have two.</p>
+
+<h2>Drawing your room</h2>
+<p>Click <b>Edit the room</b>. You start with two long tables and a TV between them — six chairs a side, no one at the ends. Change any of it.</p>
+<table>
+  <tr><th>To do this</th><th>Do that</th></tr>
+  <tr><td>Move a table</td><td>Drag it.</td></tr>
+  <tr><td>Change how many sit at it</td><td>Click it, then set the number on each edge. Set an edge to 0 and nobody sits there.</td></tr>
+  <tr><td>Add another table, the TV, a whiteboard, your desk, a door</td><td>The buttons in the sidebar. New things land below what is already there, never on top of it.</td></tr>
+  <tr><td>Get rid of something</td><td>Click it → <b>Remove it</b>.</td></tr>
+  <tr><td>Keep this room for good</td><td><b>Save it, or use one you saved…</b> — see below.</td></tr>
+  <tr><td>Reuse a room from another class</td><td><b>Copy a room from another class</b>, at the bottom of the panel.</td></tr>
+</table>
+<p>There is no room size to set. The canvas grows and shrinks around whatever you put in it, and the view zooms to fit. If two pieces end up on top of each other it tells you at the top.</p>
+
+<h2>Saved rooms</h2>
+<p>Drawing a room is the slow part, and you should only ever do it once. In the room editor, <b>Save it, or use one you saved…</b> opens the room library.</p>
+<ul>
+  <li><b>Save</b> the room on screen under a name — <i>Lab 3</i>, <i>Exam layout</i>, <i>Tables in fours</i>.</li>
+  <li><b>Use it</b> drops that room into whatever plan you have open, in any class. Anyone already sitting in a chair that still exists stays put.</li>
+  <li><b>Export</b> writes a small <code>.seatingroom</code> file. <b>Import</b> reads one back.</li>
+  <li>Rename one by typing over its name.</li>
+</ul>
+<div class="good"><b>A room file is safe to send to anyone.</b> It holds tables, chairs and furniture — and not one student, name or photograph. It is about half a page of text. If a colleague teaches in your room, send them the file and they have your layout in two clicks.</div>
+
+<h2>Seating people</h2>
+<table>
+  <tr><th>To do this</th><th>Do that</th></tr>
+  <tr><td>Seat someone</td><td>Drag them from the list on the right onto a chair. Or click them, then click an empty chair.</td></tr>
+  <tr><td>Move someone</td><td>Drag their card to another chair.</td></tr>
+  <tr><td>Swap two students</td><td>Drag one onto the other.</td></tr>
+  <tr><td>Look at a different student</td><td>Just click them. One click, one selection — clicking a second student never swaps anyone.</td></tr>
+  <tr><td>Take someone out</td><td>Drag them back to the list on the right. Or click them and press <code>delete</code>.</td></tr>
+  <tr><td>Seat the whole class at random</td><td><b>Shuffle</b>.</td></tr>
+  <tr><td>Seat them alphabetically</td><td><b>A–Z</b>, by surname.</td></tr>
+  <tr><td>Alternate boys and girls</td><td><b>Alternate</b>. Greyed out if the class is single sex or the export carried no gender.</td></tr>
+  <tr><td>Change your mind</td><td><b>Undo</b>, or <code>⌘Z</code>. It remembers the last 40 changes.</td></tr>
+  <tr><td>Zoom</td><td><b>–</b> and <b>+</b>, or <b>Fit</b> to put the whole room back on the screen.</td></tr>
+  <tr><td>Keep one student where they are</td><td>Click them → <b>Pin here</b>. Shuffle will not touch a pinned student.</td></tr>
+</table>
+
+<div class="good"><b>Click picks up, drag moves.</b> A click on a student only ever selects them,
+so flicking through the class to read labels or add a note is one click each. Anything that
+<i>rearranges</i> the room is a drag — onto an empty chair to move, onto another student to swap.
+If you preferred the old two-click swap, hold <b>alt</b> while you click the second student.</div>
+
+<h2>The labels</h2>
+<p>Click a student and give them a label. It shows as a small coloured chip under their name. Seven come as standard — three English levels and four placement notes.</p>
+<p style="margin:14px 0">
+  <span class="tg" style="background:#14508f">Lead</span>&nbsp; confident in English, a good partner for someone building &nbsp;·&nbsp;
+  <span class="tg" style="background:#2a78d6">Mid</span>&nbsp; developing English &nbsp;·&nbsp;
+  <span class="tg" style="background:#a9cdf2;color:#141210">Build</span>&nbsp; building English, seat beside a confident speaker
+</p>
+<p style="margin:14px 0">
+  <span class="tg" style="background:#eda100;color:#141210">Front</span>&nbsp; sit near the front &nbsp;·&nbsp;
+  <span class="tg" style="background:#7b2d8e">Plan</span>&nbsp; has a learning plan &nbsp;·&nbsp;
+  <span class="tg" style="background:#1baf7a;color:#141210">New</span>&nbsp; new this year &nbsp;·&nbsp;
+  <span class="tg" style="background:#e87ba4;color:#141210">Calm</span>&nbsp; works best in a calm spot
+</p>
+<p>The three English levels are one blue, light to dark, so they read as a single scale at a glance and you can pair a <b>Build</b> with a <b>Lead</b> without thinking about it. The seven are worded on purpose. Every one of them reads as an instruction about <i>where to put a chair</i>, not as a verdict on the child — so a student who glances at the screen while you are setting up learns nothing about themselves or anyone else. The full meaning only appears when you hover, in the sidebar, and on the printed legend.</p>
+<p><b>Labels…</b> in the toolbar lets you rename them, recolour them, and add your own. Keep the short word short: three or four letters is what fits on a card. Changing a label changes it on every card at once.</p>
+<p>Below the labels there is a <b>Note</b> box for anything a label cannot say — <i>hearing aid, left ear</i>, <i>joined in March, still finding their feet</i>. Notes never appear on the plan itself, only on the printed class list, so nothing is on screen when the projector is on.</p>
+<div class="warn"><b>Before you put it on the projector</b>, turn <b>Labels</b> off in the sidebar. Photographs and surnames have their own switches too. What you see is what prints.</div>
+
+<h2>Keeping two students apart</h2>
+<p>Click a student → <b>Keep apart from</b> → pick the other one. From then on, always:</p>
+<ul>
+  <li><b>Shuffle</b> and <b>Alternate</b> will not sit them together. They try up to 400 arrangements to find one that works, and tell you if your room makes it impossible.</li>
+  <li>If they end up together anyway — because you dragged them there, or because you used A–Z — both cards get a red ring and a line appears at the top naming them.</li>
+  <li>It never stops you. Doing it by hand is the override. The warning just makes sure it was on purpose.</li>
+</ul>
+<p>There is no switch for any of this, and that is deliberate: a pair you have set is a rule, not a preference. If two students may sit together again, take the pair off one of them — the same place you set it. A button that quietly suspended the rule would only ever be a way to forget it was there.</p>
+<p>The red ring is for the screen, where you can do something about it. It is never printed: by the time a sheet comes out the plan is settled, and a ring drawn round two named children is not something to hand round a classroom. What does print — under the class list, if you ask for it — is a plain <b>Keep apart</b> list of the pairs, which is what a cover teacher needs in order not to undo your work.</p>
+<p>Neighbours means side by side, or directly across a table from each other.</p>
+
+<h2>Printing</h2>
+<p><b>Print…</b> scales the whole plan onto one sheet, portrait or landscape, whichever fits your room better. The app tells the printer which paper to use and which way round, so the sheet you see in the print panel is the sheet that comes out. Leave the scale at 100%.</p>
+<div class="good"><b>You set the plan up once.</b> What goes on a card — the photographs, the surnames, the real names, the labels, the New badge, Big names — is decided on screen, in the panel on the right, and the sheet comes out the same. The print dialog shows you those settings so you can see what you will get, greyed out because the screen owns them. It only asks you about the things that are true of paper alone: the size of it, which way round, the class list, the key, black and white, and which classes.</div>
+<p>If you do want a sheet that is not what you work from — a handout with the labels off, say, while you keep them on screen — untick <b>Match what is on screen</b> in the dialog. That printout then keeps its own settings, for that class, until you tick it again.</p>
+<ul>
+  <li><b>A4</b> or <b>A3</b>. A3 is worth it for a big room — the faces come out roughly half again as large.</li>
+  <li><b>Which classes</b> lets you tick several at once. They come out one after the other in a single print job, every one of them with the settings you have chosen here, so a set of classes is one trip to the printer rather than one each. Each class still brings its own room, its own labels and its own notes.</li>
+  <li>The sheet carries the class name, the plan name, the date, how many are seated, and your note for the class.</li>
+  <li>Tick <b>Print what the labels mean</b> and the legend goes on the sheet — useful for a cover teacher, less so if the sheet might be left on a desk.</li>
+  <li>Tick <b>A class list</b> and it prints underneath the plan on the same sheet: everyone in alphabetical order with their labels, your written notes where you have made any, and your keep-apart pairs. It carries names and labels and nothing else — the register name, the form and the rest are on the cards already, and all they did in the list was make it too wide to stand in columns. Narrow, it splits into as many columns as genuinely make it shorter, so it takes a fraction of the sheet and the plan gets the rest. One class, one page.</li>
+  <li>Tick <b>Big names — leave the tables out</b> and the sheet comes out as names rather than as a room. On a typical class that is a name about three times the height, which is the difference between a sheet you have to walk over to and one you can read from where you are standing. There is more about it below.</li>
+  <li>Tick <b>Black and white</b> and the coloured chips become outlined ones, the furniture goes to line art and the photographs go grey — so it survives a mono laser printer and takes pencil well.</li>
+  <li>The printout is built for the paper on its own, so nothing on screen changes while you print and the plan you are working on is left exactly as it was. <b>Student's view</b> carries over if you have it on.</li>
+  <li>Whichever way round you have it, the settings are remembered per class, so next week is one click.</li>
+</ul>
+
+<h2>Student's view</h2>
+<p>Flips the room 180° so what is on the screen matches what the class sees from their side of the door. The names stay the right way up.</p>
+
+<h2>Big names</h2>
+<p>The button next to <b>Student's view</b>, and a tick box in <b>Print…</b> — the screen and the sheet are set separately, so you can read one that way without printing the other that way.</p>
+<p>The button keeps its name whichever way it is set, like <b>Fit</b> does: it lights up when it is on, and the same button puts the room back.</p>
+<p>What makes a plan hard to read at arm's length is the furniture. A table holds the chairs around it the better part of a metre apart, and once a whole room of that has been squeezed onto one sheet, the cards — and the names in them — are whatever is left over. Big names takes the furniture out. Every chair keeps the row and the column it is really in, so the plan still says who sits where and who is sitting beside whom; but the space the tables were using goes back to the cards, and the grid is shaped to the paper or the window rather than to the shape of the room.</p>
+<ul>
+  <li>It is worth most when you want a name in a hurry — a cover lesson, a new class, or a set of books to hand back. Print it with the room when you want to see the room; print it this way when you want to read a name across it.</li>
+  <li><b>Turning the photographs off makes the names larger again.</b> The app works out the shape of a card from what is going on it, so a card with no photograph on it is not the same shape as one with — it spends what the photograph was using on the name. Turning the labels off does the same thing again.</li>
+  <li>A name too long for its card is given its own size rather than being cut off, so the short names stay as large as the card allows.</li>
+  <li><b>The room is still in there.</b> Two chairs that sit at the same table have a slim grey band between them where the table was, and a gangway — floor with nothing on it — is left proportionally wider than a plain shoulder-to-shoulder gap. Neither is anything like its real depth, because that space is precisely what this mode is reclaiming, but it is enough to see at a glance which chairs share a table and where the room opens up. Chairs nobody is sitting in stay where they are, empty.</li>
+  <li>Whatever is at the front or the back of your room — the board, the TV — is named along that edge, so you can still tell which way the class is facing. <b>Student's view</b> works here as it does anywhere else.</li>
+  <li>Everything else carries on working normally: drag a student to move them, and the keep-apart warnings still go by where the chairs really are, not by where they are drawn.</li>
+</ul>
+<p>You cannot draw a room in this mode, for the obvious reason — <b>Edit the room</b> puts the furniture back while you are in it.</p>
+
+<h2>The New badge</h2>
+<p>Students in their first year at the school carry a small purple <b>NEW</b> on their card. It is a switch like any other — <b>The New badge</b>, in the panel on the right for the screen, and in <b>Print…</b> for the sheet — and the row only appears when somebody in the class is actually new, since there is nothing to switch otherwise.</p>
+<p>On the printed sheet it is tied to <b>Labels</b>: with the labels off, nothing that singles a student out is printed, and the New badge goes with them. On screen the two are independent, because that view is only ever yours.</p>
+
+<h2>Which name goes on the card</h2>
+<p>Two separate things: which name is the big one, and whether their other name comes with it.</p>
+<p><b>Which name is the big one</b>, in the panel on the right, chooses it — on the screen, where you can see it change as you choose. The sheet then comes out the same, so there is nothing to set a second time in <b>Print…</b>.</p>
+<ul>
+  <li><b>Preferred name</b> — the name they go by, from your iSAMS export. The default, and the one to use day to day.</li>
+  <li><b>Real name</b> — the forename on the register instead, for anything official.</li>
+</ul>
+<p><b>Their real name, in brackets underneath</b> is a switch of its own, next to Photographs and Surnames in the panel on the right. Tick it and the card carries both:</p>
+<div class="good"><b>Mina</b> — the preferred name, full size<br>
+  <b>(Minji)</b> — their real name, in brackets straight under it<br>
+  <b>Seo</b> — the surname, under the pair of them</div>
+<p>The two forenames sit together, with the surname under both. A surname in between would read as though it belonged to the first name only.</p>
+<p>The brackets are the point: they make it an aside rather than a second name competing with the first. Worth having on a cover sheet, or in the first weeks of a class while you are still learning who answers to what. It works the same way round if you have set the register name as the big one — whichever name is <i>not</i> the big one is the one that goes in the brackets.</p>
+<p>Where a student has no separate preferred name the brackets are simply left off, rather than printing the same name twice.</p>
+<div class="warn"><b>A name in brackets that looks wrong is coming from the export, not from the app.</b> iSAMS puts a number after a register name when two students in the school share one — <code>Minjoo 2</code> — and the app prints what it was given. Fix it in the class's <code>students.csv</code> if it bothers you.</div>
+
+<h2>Where everything lives</h2>
+<p>In this folder, in <code>Classes</code> — one folder per class, holding a spreadsheet of names, the photographs, and the plan. Nothing is sent anywhere. The app talks to a small helper on your own Mac that only accepts connections from this Mac, needs a fresh random key each time, and shuts itself down about a quarter of an hour after you close the window. It does not count time your Mac spent asleep, so a lid closed over break comes back to the same working window.</p>
+<p>To move it to your MacBook Pro, copy the folder across and run <code>Install.command</code> there too. The classes come with it.</p>
+
+<h2>Handing a class to another teacher</h2>
+<p><b>Classes → Export</b> on any class writes one <code>.seatingclass</code> file. Anyone with this app opens <b>Classes → Import a class file</b> and has your class exactly as you left it: students, photographs, every plan, your labels, your notes and your keep-apart pairs. It lands as a separate class, so importing a class you already have never overwrites your own copy.</p>
+<div class="warn"><b>That file holds named children.</b> Photographs, dates of birth, who has a learning plan, who is building their English, and anything you have written in a note. It is the digital equivalent of handing over your mark book — fine for the colleague taking the class, not fine for a group chat or an unencrypted memory stick. If you only want to share the room, export the <b>room</b> instead: it has no students in it at all.</div>
+
+<h2>Handing the whole app to another teacher</h2>
+<p>Delete the <code>Classes</code> folder, <code>Rooms.json</code> and <code>active_class</code> before you copy it. That is all the student data there is. They then add their own classes from their own iSAMS exports — or you send them one class file.</p>
+
+<h2>If something goes wrong</h2>
+<table>
+  <tr><td>The window will not open</td><td>Run <code>Install.command</code> again. If it still refuses, there may be a reason in <code>~/Library/Application Support/SeatingPlanner/server.err</code>.</td></tr>
+  <tr><td>A red bar says the helper has stopped</td><td>Close the window and open Seating Plan again. Nothing can be saved while that bar is showing, so do it before you carry on — the plan is safe up to the last time it saved.</td></tr>
+  <tr><td>It asks to install Python</td><td>Say yes. It is Apple's own command line tools download, and reading Excel files needs it. One time only.</td></tr>
+  <tr><td>A spreadsheet is rejected</td><td>It needs Surname, Forename and Date of Birth columns. Both list files have them — the Students Simple Report if you ticked every field, the Export Wizard file if you selected all the fields.</td></tr>
+  <tr><td>Photographs are missing</td><td>The badge file is the one that carries them. Add the class again with file 2 included.</td></tr>
+  <tr><td>A class file will not import</td><td>It has to be a <code>.seatingclass</code> written by this app. A zip of a folder is not the same thing.</td></tr>
+  <tr><td>You want it gone</td><td><code>Uninstall.command</code>, then delete the folder.</td></tr>
+</table>
+
+<div class="credit">
+  <b>Made by Dr. Daniel Mompel.</b><br>
+  If something is broken, or you can think of a way this should work better,
+  write to <a href="mailto:dmompelriera@nlcsjeju.kr?subject=Seating%20Plan%20%E2%80%94%20suggestion%20or%20problem">dmompelriera@nlcsjeju.kr</a>.
+  Suggestions from the people actually using it are how it gets fixed.
+</div>
+
+</body></html>
