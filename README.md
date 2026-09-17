@@ -1,15 +1,24 @@
 # Seating Plan
 
-Drag photographs into chairs. Export two files from iSAMS, open the app, and you have a seating plan
-for a new class in **under five minutes**.
+Drag photographs into chairs. Export three reports from iSAMS, drop them on the app, and you have a
+seating plan for a new class in **under five minutes**.
 
 > ## ⚠️ You need iSAMS
 >
 > This is built around exports from **iSAMS**, the school management system. **If your school does
 > not use iSAMS, this will not work** — there is nowhere for it to get your class from.
 >
-> The photographs are the part that cannot be replaced: they come out of the iSAMS **Student ID
-> Badge** report, and nothing else produces that file.
+> It takes up to **three reports**, all exported as Excel from Student Manager ▸ Selected Students ▸
+> Exporting and Reports:
+>
+> | Report | What it gives the plan |
+> |---|---|
+> | **Export Wizard file** | names, **preferred names**, dates of birth, gender |
+> | **Student ID Badge** | the **photographs** |
+> | **Students Simple Report** | year group and form, and the enrolment year behind the **New this year** badge |
+>
+> The first two are enough to make a usable plan. The third fills in the rest. The photographs are
+> the part nothing else can replace: only the iSAMS Student ID Badge report produces that file.
 >
 > If your school runs a different MIS it *may* still manage the names — the reader takes an
 > Excel file and looks for `Surname` and `Forename` columns, accepting the usual variants
@@ -28,7 +37,7 @@ your classes in a folder you can see, and never sends a child's name or face any
 
 ## What it does
 
-- **Loads your class from two iSAMS files.** Drag them onto the page and it has every name and
+- **Loads your class from your iSAMS reports.** Drag them onto the page and it has every name and
   photograph. Nothing to type in.
 - **Matches your actual room.** Put in the benches, tables, board, teacher's desk and door where
   they really are, and the chairs where the chairs really are.
@@ -84,10 +93,9 @@ the folder yourself if you want them gone.
 
 ## Requirements
 
-- **iSAMS** — see the notice at the top. Two exports: the **Export Wizard** file for names, preferred
-  names and dates of birth, and the **Student ID Badge** report for the photographs. Both from
-  Student Manager ▸ tick the class ▸ Search ▸ select all ▸ Selected Students ▸ Exporting and Reports.
-  Choose **Excel** whenever iSAMS offers you a format.
+- **iSAMS**, and the reports listed at the top. All of them come from Student Manager ▸ tick the
+  class ▸ Search ▸ select all ▸ Selected Students ▸ Exporting and Reports. Choose **Excel** every
+  time iSAMS offers you a format.
 - **macOS.** Built from Swift for the window and Python for the local server, both of which macOS
   already has — nothing to install first, and no dependencies to keep up to date.
 
