@@ -1,6 +1,7 @@
 # Seating Plan
 
-Draw your room once, then drag faces into chairs. It prints on one sheet.
+Drag photographs into chairs. Export two files from iSAMS, open the app, and you have a seating plan
+for a new class in **under five minutes**.
 
 > ## ⚠️ You need iSAMS
 >
@@ -17,10 +18,9 @@ Draw your room once, then drag faces into chairs. It prints on one sheet.
 >
 > Please check this before you spend time downloading it.
 
-A seating plan is only useful if you can make one in the five minutes before a lesson and read it
-from the front of the room. This is a small Mac app that does that and nothing else. It runs on your
-own machine, keeps your classes in a folder you can see, and never sends a child's name or face
-anywhere.
+A seating plan is only useful if you can make one before the lesson and read it from the front of the
+room. This is a small Mac app that does that and nothing else. It runs on your own machine, keeps
+your classes in a folder you can see, and never sends a child's name or face anywhere.
 
 ![The seating plan: six benches, twenty students, cards showing photograph, name and label](docs/seating-plan.png)
 
@@ -28,24 +28,25 @@ anywhere.
 
 ## What it does
 
-- **Import a class from iSAMS.** Two exports is all it needs: the Export Wizard file for names,
-  preferred names and dates of birth, and the Student ID Badge report for the photographs. Drop the
-  files on the page; there is no wizard to sit through.
-- **Draw the room.** Benches, tables, a whiteboard, a screen, the teacher's desk, the door. Put the
-  chairs where the chairs actually are — six round a bench, two a side, one at the end.
-- **Seat them.** Drag a face into a chair. Drag one onto another to swap the two. `Shuffle` for a
-  fresh arrangement, `A–Z` for a register order, `Alternate` to break up whoever needs breaking up.
-- **Keep several plans per class,** so the plan for a practical is not the plan for a test.
-- **Label who needs what** — English confidence, a target, anything you want to see at a glance
-  without writing it on the card in words a passing student can read.
-- **Print it on one sheet,** or open *Student's view* and turn the plan round so the room sees it
-  from where they are sitting rather than from the front.
+- **Loads your class from two iSAMS files.** Drag them onto the page and it has every name and
+  photograph. Nothing to type in.
+- **Matches your actual room.** Put in the benches, tables, board, teacher's desk and door where
+  they really are, and the chairs where the chairs really are.
+- **Seats them by dragging.** Drop a student on a chair to move them, or on another student to swap
+  the two. Buttons for a shuffle, for register order, and for moving people apart.
+- **Marks who needs what** — support, a seat at the front, two people who should not sit together.
+  It shows as a colour you can read at a glance, not as words a student could read over your
+  shoulder.
+- **Holds more than one plan per class,** so the layout you use for a practical is not the one you
+  use for a test. Switch between them in a click.
+- **Prints for your folder,** or goes on the board the right way round, so the class can find their
+  own seats as they come in.
 
-## What you can choose to show
+## What each card shows
 
-Each card can carry the photograph, the surname, the pupil's legal name in brackets when you call
-them something else, and your own labels. A **New this year** badge is worked out from the iSAMS
-export rather than set by hand, so it is right without you maintaining it.
+The photograph, the name you call them, and the surname. You can also show their legal name in
+brackets, and your own labels. A **New this year** badge is worked out from the iSAMS export
+rather than set by hand, so it stays right on its own.
 
 ## Privacy
 
